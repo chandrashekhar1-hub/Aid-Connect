@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AidConnect — Smart NGO Resource System</title>
+  <meta name="description" content="Real-time resource allocation and volunteer coordination system for NGOs during crises and disasters across India." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    /* ===== CSS VARIABLES ===== */
+    :root {
+      --primary:    #E85D04;
+      --primary-dk: #C44B00;
+      --primary-lt: #FF7A25;
+      --yellow:     #FFBA08;
+      --teal:       #2EC4B6;
+      --navy:       #0D1B2A;
+      --navy-lt:    #162435;
+      --dark:       #1A1A2E;
+      --gray:       #6B7280;
+      --gray-lt:    #F3F4F6;
+      --white:      #FFFFFF;
+      --text:       #1F2937;
+      --text-lt:    #4B5563;
+      --red:        #EF4444;
+      --green:      #22C55E;
+      --shadow:     0 4px 24px rgba(0,0,0,0.10);
+      --shadow-lg:  0 8px 40px rgba(0,0,0,0.16);
+      --radius:     14px;
+      --radius-sm:  8px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ===== RESET ===== */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); overflow-x: hidden; }
+    img { max-width:100%; display:block; }
+    a { text-decoration:none; color:inherit; }
+    ul { list-style:none; }
+    button { cursor:pointer; border:none; background:none; font-family:inherit; }
+
+    /* ===== UTILITY ===== */
+    .container { max-width:1200px; margin:0 auto; padding:0 24px; }
+    .section    { padding:100px 0; }
+    .section-sm { padding:60px 0; }
+    .tag { display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px; }
+    .tag::before { content:''; width:24px; height:3px; background:var(--primary); border-radius:2px; }
+    .heading { font-family:'Playfair Display', serif; font-size:clamp(32px,4vw,52px); font-weight:800; line-height:1.15; color:var(--dark); }
+    .heading span { color:var(--primary); }
+    .sub { font-size:17px; line-height:1.7; color:var(--text-lt); margin-top:16px; }
+    .btn { display:inline-flex; align-items:center; gap:10px; padding:14px 30px; border-radius:50px; font-size:15px; font-weight:600; transition:var(--transition); }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-primary:hover { background:var(--primary-dk); transform:translateY(-2px); box-shadow:0 8px 24px rgba(232,93,4,0.35); }
+    .btn-outline { border:2px solid var(--primary); color:var(--primary); }
+    .btn-outline:hover { background:var(--primary); color:#fff; transform:translateY(-2px); }
+    .btn-white { background:#fff; color:var(--primary); }
+    .btn-white:hover { background:var(--yellow); color:var(--dark); transform:translateY(-2px); }
+    .badge { display:inline-block; padding:4px 12px; border-radius:50px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+    .badge-red    { background:#FEE2E2; color:#DC2626; }
+    .badge-orange { background:#FEF3C7; color:#D97706; }
+    .badge-green  { background:#DCFCE7; color:#16A34A; }
+    .badge-teal   { background:#CCFBF1; color:#0D9488; }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:#f1f1f1; }
+    ::-webkit-scrollbar-thumb { background:var(--primary); border-radius:3px; }
+
+    /* ===== TOP BAR ===== */
+    .topbar { background:var(--navy); color:#ccc; font-size:13px; padding:9px 0; }
+    .topbar .container { display:flex; justify-content:space-between; align-items:center; }
+    .topbar-left { display:flex; gap:20px; }
+    .topbar-left span { display:flex; align-items:center; gap:6px; }
+    .topbar-right { display:flex; gap:14px; }
+    .topbar-right a { color:#ccc; transition:color .2s; }
+    .topbar-right a:hover { color:var(--yellow); }
+
+    /* ===== NAVBAR ===== */
+    .navbar { position:sticky; top:0; z-index:1000; background:#fff; box-shadow:0 2px 20px rgba(0,0,0,0.08); }
+    .navbar .container { display:flex; justify-content:space-between; align-items:center; padding:0 24px; height:72px; }
+    .logo { display:flex; align-items:center; gap:10px; }
+    .logo-icon { width:42px; height:42px; background:linear-gradient(135deg,var(--primary),var(--yellow)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+    .logo-text { font-family:'Playfair Display',serif; font-size:22px; font-weight:800; color:var(--dark); }
+    .logo-text span { color:var(--primary); }
+    .nav-links { display:flex; gap:32px; }
+    .nav-links a { font-size:14px; font-weight:500; color:var(--text-lt); transition:var(--transition); position:relative; }
+    .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:var(--primary); border-radius:1px; transition:width .3s; }
+    .nav-links a:hover { color:var(--primary); }
+    .nav-links a:hover::after { width:100%; }
+    .nav-links a.active { color:var(--primary); }
+    .nav-links a.active::after { width:100%; }
+    .nav-actions { display:flex; align-items:center; gap:12px; }
+    .sos-btn { background:var(--red); color:#fff; padding:8px 18px; border-radius:50px; font-size:13px; font-weight:700; animation:pulse-red 2s infinite; display:flex; align-items:center; gap:6px; }
+    @keyframes pulse-red { 0%,100%{ box-shadow:0 0 0 0 rgba(239,68,68,0.5); } 50%{ box-shadow:0 0 0 8px rgba(239,68,68,0); } }
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; }
+    .hamburger span { width:24px; height:2px; background:var(--dark); border-radius:2px; transition:.3s; }
+
+    /* ===== HERO ===== */
+    .hero { position:relative; min-height:92vh; display:flex; align-items:center; overflow:hidden; }
+    .hero-bg { position:absolute; inset:0; background-image:url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1600&q=80'); background-size:cover; background-position:center; }
+    .hero-overlay { position:absolute; inset:0; background:linear-gradient(105deg, rgba(13,27,42,0.92) 0%, rgba(13,27,42,0.6) 60%, rgba(232,93,4,0.15) 100%); }
+    .hero-content { position:relative; z-index:2; max-width:680px; color:#fff; }
+    .hero-tag { display:inline-flex; align-items:center; gap:8px; background:rgba(255,186,8,0.15); border:1px solid rgba(255,186,8,0.4); color:var(--yellow); padding:8px 18px; border-radius:50px; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:28px; }
+    .hero-tag .dot { width:8px; height:8px; background:var(--yellow); border-radius:50%; animation:blink 1.5s infinite; }
+    @keyframes blink { 0%,100%{opacity:1;}50%{opacity:0.2;} }
+    .hero-title { font-family:'Playfair Display',serif; font-size:clamp(40px,6vw,72px); font-weight:800; line-height:1.08; margin-bottom:24px; }
+    .hero-title span { color:var(--primary-lt); }
+    .hero-desc { font-size:18px; line-height:1.7; color:rgba(255,255,255,0.8); margin-bottom:40px; max-width:520px; }
+    .hero-actions { display:flex; gap:16px; flex-wrap:wrap; }
+    .hero-stats { display:flex; gap:40px; margin-top:60px; padding-top:40px; border-top:1px solid rgba(255,255,255,0.12); }
+    .hero-stat-num { font-size:36px; font-weight:800; color:#fff; font-family:'Playfair Display',serif; }
+    .hero-stat-num span { color:var(--yellow); }
+    .hero-stat-label { font-size:13px; color:rgba(255,255,255,0.6); margin-top:2px; }
+    .hero-img-float { position:absolute; right:6%; bottom:8%; width:340px; border-radius:20px; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.4); border:3px solid rgba(255,255,255,0.1); }
+    .hero-img-float img { width:100%; height:220px; object-fit:cover; }
+    .hero-img-caption { background:rgba(13,27,42,0.9); backdrop-filter:blur(10px); padding:14px 18px; }
+    .hero-img-caption p { color:#fff; font-size:14px; font-weight:600; }
+    .hero-img-caption span { color:var(--yellow); font-size:12px; }
+    .scroll-hint { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:rgba(255,255,255,0.5); font-size:12px; }
+    .scroll-arrow { width:24px; height:24px; border-right:2px solid rgba(255,255,255,0.4); border-bottom:2px solid rgba(255,255,255,0.4); transform:rotate(45deg); animation:scroll-bounce 1.5s infinite; }
+    @keyframes scroll-bounce { 0%,100%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(45deg) translateY(6px);} }
+
+    /* ===== STATS TICKER ===== */
+    .stats-ticker { background:var(--primary); padding:20px 0; overflow:hidden; }
+    .ticker-track { display:flex; gap:0; animation:ticker 30s linear infinite; white-space:nowrap; }
+    .ticker-item { display:inline-flex; align-items:center; gap:8px; padding:0 40px; color:#fff; font-size:15px; font-weight:600; }
+    .ticker-dot { width:6px; height:6px; background:rgba(255,255,255,0.5); border-radius:50%; }
+    @keyframes ticker { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+    /* ===== IMPACT NUMBERS ===== */
+    .impact { background:var(--navy); color:#fff; }
+    .impact-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,0.06); border-radius:var(--radius); overflow:hidden; }
+    .impact-card { background:var(--navy-lt); padding:48px 32px; text-align:center; position:relative; overflow:hidden; }
+    .impact-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--primary),var(--yellow)); }
+    .impact-icon { font-size:40px; margin-bottom:16px; }
+    .impact-num  { font-family:'Playfair Display',serif; font-size:48px; font-weight:800; color:#fff; line-height:1; }
+    .impact-num span { color:var(--yellow); }
+    .impact-label{ font-size:14px; color:rgba(255,255,255,0.55); margin-top:8px; text-transform:uppercase; letter-spacing:1px; }
+
+    /* ===== CAUSES ===== */
+    .causes { background:var(--gray-lt); }
+    .section-header { text-align:center; margin-bottom:64px; }
+    .cause-card { background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); transition:var(--transition); }
+    .cause-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-lg); }
+    .cause-img { width:100%; height:220px; object-fit:cover; }
+    .cause-body { padding:24px; }
+    .cause-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .cause-title { font-size:17px; font-weight:700; color:var(--dark); margin-bottom:10px; line-height:1.4; }
+    .cause-desc  { font-size:14px; color:var(--text-lt); line-height:1.6; margin-bottom:18px; }
+    .progress-bar { background:#F0F0F0; border-radius:50px; height:6px; margin-bottom:12px; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:50px; background:linear-gradient(90deg,var(--primary),var(--yellow)); transition:width 1s ease; }
+    .cause-fund { display:flex; justify-content:space-between; font-size:13px; }
+    .cause-fund .raised { color:var(--primary); font-weight:700; }
+    .cause-fund .goal   { color:var(--gray); }
+    .cause-footer { padding:16px 24px; border-top:1px solid #F0F0F0; display:flex; justify-content:space-between; align-items:center; }
+    .cause-footer a { font-size:13px; font-weight:600; color:var(--primary); display:flex; align-items:center; gap:6px; }
+
+    /* ===== HOW IT WORKS ===== */
+    .how-it-works { background:#fff; }
+    .steps-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:32px; position:relative; }
+    .steps-grid::before { content:''; position:absolute; top:48px; left:12%; right:12%; height:2px; background:linear-gradient(90deg,var(--primary) 0%,var(--yellow) 100%); z-index:0; }
+    .step-card { text-align:center; position:relative; z-index:1; }
+    .step-num { width:96px; height:96px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--yellow)); display:flex; align-items:center; justify-content:center; font-size:32px; margin:0 auto 20px; box-shadow:0 8px 24px rgba(232,93,4,0.3); }
+    .step-title { font-size:16px; font-weight:700; color:var(--dark); margin-bottom:8px; }
+    .step-desc  { font-size:14px; color:var(--text-lt); line-height:1.6; }
+
+    /* ===== LIVE MAP ===== */
+    .live-map-section { background:var(--gray-lt); }
+    .map-wrapper { border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-lg); }
+    #live-map { height:480px; }
+    .map-sidebar { display:flex; flex-direction:column; gap:16px; }
+    .map-stat-card { background:#fff; border-radius:var(--radius-sm); padding:20px; box-shadow:var(--shadow); border-left:4px solid var(--primary); }
+    .map-stat-card.teal   { border-color:var(--teal); }
+    .map-stat-card.yellow { border-color:var(--yellow); }
+    .map-stat-card.green  { border-color:var(--green); }
+    .map-stat-num   { font-size:32px; font-weight:800; color:var(--dark); font-family:'Playfair Display',serif; }
+    .map-stat-label { font-size:13px; color:var(--text-lt); margin-top:4px; }
+    .crisis-list { background:#fff; border-radius:var(--radius-sm); box-shadow:var(--shadow); overflow:hidden; }
+    .crisis-list-header { padding:16px 20px; background:var(--navy); color:#fff; font-weight:700; font-size:14px; }
+    .crisis-item { padding:14px 20px; border-bottom:1px solid #F0F0F0; display:flex; justify-content:space-between; align-items:center; }
+    .crisis-item:last-child { border-bottom:none; }
+    .crisis-item-name { font-size:13px; font-weight:600; color:var(--dark); }
+    .crisis-item-loc  { font-size:12px; color:var(--gray); }
+
+    /* ===== VOLUNTEER CTA ===== */
+    .volunteer-cta { background:linear-gradient(135deg,var(--navy) 0%,var(--navy-lt) 100%); color:#fff; position:relative; overflow:hidden; }
+    .volunteer-cta::before { content:''; position:absolute; top:-60px; right:-60px; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle,rgba(232,93,4,0.15),transparent 70%); }
+    .volunteer-cta::after  { content:''; position:absolute; bottom:-80px; left:30%; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle,rgba(255,186,8,0.08),transparent 70%); }
+    .cta-content { position:relative; z-index:2; }
+    .cta-title { font-family:'Playfair Display',serif; font-size:clamp(30px,4vw,48px); font-weight:800; margin-bottom:16px; }
+    .cta-title span { color:var(--yellow); }
+    .cta-desc { font-size:17px; line-height:1.7; color:rgba(255,255,255,0.75); margin-bottom:36px; max-width:500px; }
+    .cta-features { display:flex; flex-direction:column; gap:14px; margin-bottom:36px; }
+    .cta-feature { display:flex; align-items:center; gap:12px; font-size:15px; color:rgba(255,255,255,0.85); }
+    .check-icon { width:24px; height:24px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+    .cta-img { border-radius:var(--radius); overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.4); }
+    .cta-img img { width:100%; height:100%; object-fit:cover; max-height:480px; }
+
+    /* ===== VOLUNTEER TEAM ===== */
+    .team { background:var(--gray-lt); }
+    .volunteer-card { background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); text-align:center; transition:var(--transition); }
+    .volunteer-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-lg); }
+    .volunteer-avatar { width:100%; height:200px; object-fit:cover; object-position:top; }
+    .volunteer-info { padding:20px; }
+    .volunteer-name { font-size:16px; font-weight:700; color:var(--dark); }
+    .volunteer-role { font-size:13px; color:var(--primary); margin-top:4px; font-weight:500; }
+    .volunteer-zone { font-size:12px; color:var(--gray); margin-top:6px; display:flex; align-items:center; justify-content:center; gap:4px; }
+    .volunteer-stats { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid #F0F0F0; }
+    .vol-stat { padding:12px; text-align:center; font-size:13px; }
+    .vol-stat strong { display:block; font-size:18px; font-weight:800; color:var(--primary); font-family:'Playfair Display',serif; }
+    .vol-stat span { color:var(--gray); font-size:11px; }
+    .stars { color:var(--yellow); font-size:13px; margin-top:8px; }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials { background:#fff; }
+    .test-card { background:var(--gray-lt); border-radius:var(--radius); padding:32px; position:relative; transition:var(--transition); }
+    .test-card:hover { background:#fff; box-shadow:var(--shadow-lg); }
+    .test-card::before { content:'"'; font-size:80px; color:var(--primary); opacity:0.15; line-height:1; position:absolute; top:8px; left:20px; font-family:'Playfair Display',serif; }
+    .test-text  { font-size:15px; line-height:1.75; color:var(--text-lt); margin-bottom:24px; position:relative; z-index:1; }
+    .test-author { display:flex; align-items:center; gap:14px; }
+    .test-avatar { width:48px; height:48px; border-radius:50%; object-fit:cover; }
+    .test-name { font-weight:700; font-size:14px; color:var(--dark); }
+    .test-role { font-size:12px; color:var(--gray); }
+
+    /* ===== DONATE ===== */
+    .donate { background:var(--primary); color:#fff; position:relative; overflow:hidden; }
+    .donate::before { content:''; position:absolute; top:-100px; right:-100px; width:500px; height:500px; border-radius:50%; background:rgba(255,255,255,0.05); }
+    .donate-inner { position:relative; z-index:2; }
+    .donate-title { font-family:'Playfair Display',serif; font-size:clamp(28px,4vw,44px); font-weight:800; margin-bottom:16px; }
+    .donate-desc  { font-size:17px; line-height:1.7; color:rgba(255,255,255,0.85); margin-bottom:36px; }
+    .donate-amounts { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px; }
+    .amt-btn { padding:12px 24px; border-radius:50px; border:2px solid rgba(255,255,255,0.4); color:#fff; font-size:16px; font-weight:700; transition:var(--transition); }
+    .amt-btn:hover, .amt-btn.active { background:#fff; color:var(--primary); border-color:#fff; }
+    .donate-input { display:flex; gap:0; max-width:400px; }
+    .donate-input input { flex:1; padding:14px 20px; border-radius:50px 0 0 50px; border:2px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:#fff; font-size:16px; outline:none; }
+    .donate-input input::placeholder { color:rgba(255,255,255,0.5); }
+    .donate-input button { padding:14px 28px; border-radius:0 50px 50px 0; background:#fff; color:var(--primary); font-weight:700; font-size:15px; transition:var(--transition); }
+    .donate-input button:hover { background:var(--yellow); color:var(--dark); }
+    .donate-img { border-radius:var(--radius); overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.3); }
+    .donate-img img { width:100%; height:100%; object-fit:cover; max-height:400px; }
+
+    /* ===== NEWS ===== */
+    .news { background:var(--gray-lt); }
+    .news-card { background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); transition:var(--transition); }
+    .news-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+    .news-img { width:100%; height:200px; object-fit:cover; }
+    .news-body { padding:24px; }
+    .news-date { font-size:12px; color:var(--gray); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .news-title { font-size:17px; font-weight:700; color:var(--dark); margin-bottom:10px; line-height:1.4; }
+    .news-title:hover { color:var(--primary); }
+    .news-desc { font-size:14px; color:var(--text-lt); line-height:1.6; }
+    .news-footer { padding:16px 24px; border-top:1px solid #F0F0F0; display:flex; justify-content:space-between; align-items:center; }
+    .news-author { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--dark); }
+    .news-author img { width:32px; height:32px; border-radius:50%; object-fit:cover; }
+
+    /* ===== REPORT MODAL ===== */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:20px; width:90%; max-width:580px; max-height:85vh; overflow-y:auto; box-shadow:0 32px 80px rgba(0,0,0,0.3); animation:modal-in .3s ease; }
+    @keyframes modal-in { from{opacity:0;transform:scale(0.9) translateY(20px);} to{opacity:1;transform:scale(1) translateY(0);} }
+    .modal-header { padding:28px 32px 20px; border-bottom:1px solid #F0F0F0; display:flex; justify-content:space-between; align-items:center; }
+    .modal-title { font-size:22px; font-weight:800; color:var(--dark); }
+    .modal-close { width:36px; height:36px; border-radius:50%; background:var(--gray-lt); display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; transition:var(--transition); }
+    .modal-close:hover { background:var(--red); color:#fff; }
+    .modal-body { padding:28px 32px; }
+    .form-group { margin-bottom:20px; }
+    .form-label { display:block; font-size:14px; font-weight:600; color:var(--dark); margin-bottom:8px; }
+    .form-input, .form-select, .form-textarea { width:100%; padding:12px 16px; border:1.5px solid #E5E7EB; border-radius:var(--radius-sm); font-size:14px; font-family:inherit; outline:none; transition:var(--transition); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(232,93,4,0.1); }
+    .form-textarea { resize:vertical; min-height:100px; }
+    .severity-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .sev-btn { padding:10px; text-align:center; border-radius:var(--radius-sm); border:2px solid #E5E7EB; font-size:13px; font-weight:600; cursor:pointer; transition:var(--transition); }
+    .sev-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .sev-btn.active { border-color:var(--primary); background:var(--primary); color:#fff; }
+    .sev-btn.critical { border-color:var(--red); }
+    .sev-btn.critical.active { background:var(--red); border-color:var(--red); }
+    .modal-footer { padding:20px 32px 28px; display:flex; gap:12px; justify-content:flex-end; }
+
+    /* ===== FOOTER ===== */
+    footer { background:var(--navy); color:rgba(255,255,255,0.7); }
+    .footer-top { padding:80px 0 40px; }
+    .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1.5fr; gap:48px; }
+    .footer-brand p { font-size:14px; line-height:1.7; margin-top:16px; }
+    .social-links { display:flex; gap:10px; margin-top:20px; }
+    .social-link { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:16px; transition:var(--transition); }
+    .social-link:hover { background:var(--primary); color:#fff; transform:translateY(-3px); }
+    .footer-title { font-size:16px; font-weight:700; color:#fff; margin-bottom:20px; }
+    .footer-links a { display:block; font-size:14px; color:rgba(255,255,255,0.6); margin-bottom:10px; transition:color .2s; }
+    .footer-links a:hover { color:var(--primary); padding-left:4px; }
+    .footer-contact p { font-size:14px; line-height:1.8; display:flex; align-items:flex-start; gap:8px; margin-bottom:10px; }
+    .footer-bottom { padding:20px 0; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; font-size:13px; }
+    .footer-newsletter input { width:100%; padding:11px 16px; border-radius:var(--radius-sm) var(--radius-sm) 0 0; border:none; background:rgba(255,255,255,0.08); color:#fff; font-size:14px; outline:none; }
+    .footer-newsletter input::placeholder { color:rgba(255,255,255,0.4); }
+    .footer-newsletter button { width:100%; padding:11px; border-radius:0 0 var(--radius-sm) var(--radius-sm); background:var(--primary); color:#fff; font-weight:600; font-size:14px; transition:var(--transition); }
+    .footer-newsletter button:hover { background:var(--primary-dk); }
+
+    /* ===== FLOATING SOS ===== */
+    .float-sos { position:fixed; bottom:32px; right:32px; z-index:500; display:flex; flex-direction:column; gap:12px; }
+    .float-sos-btn { width:60px; height:60px; border-radius:50%; background:var(--red); color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow:0 8px 24px rgba(239,68,68,0.5); animation:pulse-red 2s infinite; cursor:pointer; transition:var(--transition); }
+    .float-sos-btn:hover { transform:scale(1.1); }
+    .float-report-btn { width:60px; height:60px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow:0 8px 24px rgba(232,93,4,0.4); cursor:pointer; transition:var(--transition); }
+    .float-report-btn:hover { transform:scale(1.1); background:var(--primary-dk); }
+
+    /* ===== TOAST ===== */
+    .toast { position:fixed; top:90px; right:24px; z-index:3000; background:var(--green); color:#fff; padding:14px 22px; border-radius:var(--radius-sm); font-size:14px; font-weight:600; box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:10px; transform:translateX(110%); transition:transform .4s; }
+    .toast.show { transform:translateX(0); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .grid-4, .impact-grid { grid-template-columns:repeat(2,1fr); }
+      .footer-grid { grid-template-columns:1fr 1fr; }
+      .steps-grid { grid-template-columns:repeat(2,1fr); }
+      .steps-grid::before { display:none; }
+    }
+    @media (max-width: 768px) {
+      .topbar, .topbar-right { display:none; }
+      .nav-links { display:none; }
+      .hamburger { display:flex; }
+      .grid-2, .grid-3 { grid-template-columns:1fr; }
+      .hero-img-float { display:none; }
+      .hero-stats { flex-wrap:wrap; gap:24px; }
+      .impact-grid { grid-template-columns:1fr 1fr; }
+      .footer-grid { grid-template-columns:1fr; }
+      .donate-amounts { gap:10px; }
+      .float-sos { bottom:20px; right:20px; }
+    }
+    @media (max-width: 480px) {
+      .section { padding:64px 0; }
+      .impact-grid { grid-template-columns:1fr; }
+      .steps-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-left">
+      <span>📞 Helpline: 1800-NGO-HELP</span>
+      <span>📧 info@aidconnect.org</span>
+      <span>🕐 24/7 Emergency Response</span>
+    </div>
+    <div class="topbar-right">
+      <a href="#" title="Twitter">🐦</a>
+      <a href="#" title="Facebook">📘</a>
+      <a href="#" title="Instagram">📸</a>
+      <a href="#" title="YouTube">▶️</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">🌿</div>
+      <div class="logo-text">Aid<span>Connect</span></div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#causes">Active Crises</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#map">Live Map</a></li>
+      <li><a href="#team">Volunteers</a></li>
+      <li><a href="#news">News</a></li>
+      <li><a href="#donate">Donate</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="sos-btn" onclick="triggerSOS()">🆘 SOS</button>
+      <a href="dashboard.html" class="btn btn-outline" style="padding:10px 22px;font-size:14px;color:var(--dark);border-color:#E5E7EB;">Dashboard</a>
+      <a href="login.html" class="btn btn-primary" style="padding:10px 22px;font-size:14px;">Login →</a>
+    </div>
+    <div class="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="container" style="position:relative;z-index:2;width:100%;">
+    <div class="hero-content">
+      <div class="hero-tag">
+        <span class="dot"></span>
+        Live Crisis Response Active
+      </div>
+      <h1 class="hero-title">
+        Connecting Help<br/>
+        Where It <span>Matters Most</span>
+      </h1>
+      <p class="hero-desc">
+        AidConnect is India's smart NGO resource system — matching volunteers, tracking resources, and coordinating relief in real-time during disasters and crises.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="openReportModal()" style="font-size:16px;padding:16px 34px;">
+          📋 File a Report
+        </button>
+        <a href="#how" class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,0.4);font-size:16px;padding:16px 34px;">
+          ▶ How It Works
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num"><span id="h-stat1">0</span>+</div>
+          <div class="hero-stat-label">Active Reports</div>
+        </div>
+        <div>
+          <div class="hero-stat-num"><span id="h-stat2">0</span>K</div>
+          <div class="hero-stat-label">Volunteers Deployed</div>
+        </div>
+        <div>
+          <div class="hero-stat-num"><span id="h-stat3">0</span>K</div>
+          <div class="hero-stat-label">Families Aided</div>
+        </div>
+        <div>
+          <div class="hero-stat-num"><span id="h-stat4">0</span></div>
+          <div class="hero-stat-label">States Covered</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating card -->
+    <div class="hero-img-float">
+      <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?w=600&q=80" alt="Relief work" />
+      <div class="hero-img-caption">
+        <p>🔴 Live — Zone C Flood Response</p>
+        <span>Jabalpur, MP · 4 volunteers on ground</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ===== STATS TICKER ===== -->
+<div class="stats-ticker">
+  <div class="ticker-track" id="ticker">
+    <span class="ticker-item">🌊 Flood Response Active — Jabalpur</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🍱 Food Dist. — Zone B, Indore · 500 packets</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🏥 Medical Camp — Bhopal · 3 doctors</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🏠 Shelter Setup — Raipur · 120 families</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🚑 Ambulance Dispatched — Nagpur</span><span class="ticker-dot"></span>
+    <span class="ticker-item">📦 Resource Pack Delivered — Surat</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🌊 Flood Response Active — Jabalpur</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🍱 Food Dist. — Zone B, Indore · 500 packets</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🏥 Medical Camp — Bhopal · 3 doctors</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🏠 Shelter Setup — Raipur · 120 families</span><span class="ticker-dot"></span>
+    <span class="ticker-item">🚑 Ambulance Dispatched — Nagpur</span><span class="ticker-dot"></span>
+    <span class="ticker-item">📦 Resource Pack Delivered — Surat</span><span class="ticker-dot"></span>
+  </div>
+</div>
+
+<!-- ===== IMPACT ===== -->
+<section class="section impact">
+  <div class="container">
+    <div class="section-header" style="color:#fff;">
+      <div class="tag" style="color:var(--yellow);">Our Impact</div>
+      <h2 class="heading" style="color:#fff;">Numbers That <span style="color:var(--yellow);">Tell The Story</span></h2>
+      <p class="sub" style="color:rgba(255,255,255,0.6);">Real-time data from active operations across 18 Indian states</p>
+    </div>
+    <div class="impact-grid">
+      <div class="impact-card">
+        <div class="impact-icon">📋</div>
+        <div class="impact-num"><span class="count" data-target="1247">0</span></div>
+        <div class="impact-label">Reports Resolved</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">🙋</div>
+        <div class="impact-num"><span class="count" data-target="3840">0</span></div>
+        <div class="impact-label">Active Volunteers</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">👨‍👩‍👧</div>
+        <div class="impact-num"><span class="count" data-target="52000">0</span></div>
+        <div class="impact-label">Families Helped</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">🏙️</div>
+        <div class="impact-num"><span class="count" data-target="18">0</span></div>
+        <div class="impact-label">States Covered</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ACTIVE CAUSES ===== -->
+<section class="section causes" id="causes">
+  <div class="container">
+    <div class="section-header">
+      <div class="tag">Active Crises</div>
+      <h2 class="heading">Find the <span>Active Cause</span></h2>
+      <p class="sub">Real-time crisis reports awaiting volunteer response. Every report matters.</p>
+    </div>
+    <div class="grid-3">
+      <!-- Cause 1 -->
+      <div class="cause-card">
+        <img class="cause-img" src="https://images.unsplash.com/photo-1547683905-f686c993aae5?w=600&q=80" alt="Flood Crisis" />
+        <div class="cause-body">
+          <div class="cause-meta">
+            <span class="badge badge-red">🔴 Critical</span>
+            <span style="font-size:12px;color:var(--gray);">2h ago</span>
+          </div>
+          <h3 class="cause-title">Severe Flooding — Napier Town, Jabalpur</h3>
+          <p class="cause-desc">Heavy rainfall has displaced over 200 families. Food packets, blankets and medical aid urgently needed.</p>
+          <div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div>
+          <div class="cause-fund">
+            <span class="raised">₹ 1,44,000 raised</span>
+            <span class="goal">Goal: ₹ 2,00,000</span>
+          </div>
+        </div>
+        <div class="cause-footer">
+          <span style="font-size:13px;color:var(--gray);">👥 4 volunteers assigned</span>
+          <a href="#" onclick="openReportModal()">Donate →</a>
+        </div>
+      </div>
+
+      <!-- Cause 2 -->
+      <div class="cause-card">
+        <img class="cause-img" src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=600&q=80" alt="Medical Camp" />
+        <div class="cause-body">
+          <div class="cause-meta">
+            <span class="badge badge-orange">🟠 High</span>
+            <span style="font-size:12px;color:var(--gray);">5h ago</span>
+          </div>
+          <h3 class="cause-title">Medical Emergency — Zone B, Indore</h3>
+          <p class="cause-desc">Outbreak of waterborne illness affecting 80+ children. Doctors and medicine dispatched from city hospital.</p>
+          <div class="progress-bar"><div class="progress-fill" style="width:55%;background:linear-gradient(90deg,#F59E0B,#EF4444)"></div></div>
+          <div class="cause-fund">
+            <span class="raised">₹ 82,500 raised</span>
+            <span class="goal">Goal: ₹ 1,50,000</span>
+          </div>
+        </div>
+        <div class="cause-footer">
+          <span style="font-size:13px;color:var(--gray);">👥 2 volunteers assigned</span>
+          <a href="#" onclick="openReportModal()">Donate →</a>
+        </div>
+      </div>
+
+      <!-- Cause 3 -->
+      <div class="cause-card">
+        <img class="cause-img" src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&q=80" alt="Food Shortage" />
+        <div class="cause-body">
+          <div class="cause-meta">
+            <span class="badge badge-teal">🟢 In Progress</span>
+            <span style="font-size:12px;color:var(--gray);">1d ago</span>
+          </div>
+          <h3 class="cause-title">Food Shortage — Tribal Village, Raipur</h3>
+          <p class="cause-desc">Remote tribal community cut off by damaged road. Daily food distribution running low on supplies.</p>
+          <div class="progress-bar"><div class="progress-fill" style="width:89%;background:linear-gradient(90deg,var(--teal),var(--green))"></div></div>
+          <div class="cause-fund">
+            <span class="raised">₹ 95,000 raised</span>
+            <span class="goal">Goal: ₹ 1,07,000</span>
+          </div>
+        </div>
+        <div class="cause-footer">
+          <span style="font-size:13px;color:var(--gray);">👥 6 volunteers assigned</span>
+          <a href="#" onclick="openReportModal()">Donate →</a>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <a href="#" class="btn btn-outline">View All Active Reports →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section how-it-works" id="how">
+  <div class="container">
+    <div class="section-header">
+      <div class="tag">Process</div>
+      <h2 class="heading">How <span>AidConnect</span> Works</h2>
+      <p class="sub">From crisis report to volunteer dispatch in under 5 minutes</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">📋</div>
+        <h3 class="step-title">File a Report</h3>
+        <p class="step-desc">Citizens or coordinators file crisis reports via app, web, or SMS — works even without internet.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">🤖</div>
+        <h3 class="step-title">Smart Matching</h3>
+        <p class="step-desc">Our algorithm scores volunteers by skill, distance, availability, and task priority in real-time.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">🔔</div>
+        <h3 class="step-title">Instant Dispatch</h3>
+        <p class="step-desc">Top-matched volunteers receive push notifications and SMS. Accept in one tap.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">✅</div>
+        <h3 class="step-title">Track & Resolve</h3>
+        <p class="step-desc">Live dashboard tracks every task. Coordinators monitor progress. Donors see impact.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LIVE MAP ===== -->
+<section class="section live-map-section" id="map">
+  <div class="container">
+    <div class="grid-2" style="gap:40px;align-items:start;">
+      <div>
+        <div class="tag">Live Operations</div>
+        <h2 class="heading" style="margin-bottom:16px;">Real-Time <span>Crisis Map</span></h2>
+        <p class="sub" style="margin-bottom:32px;">Track active crises, deployed volunteers, and resource distribution centers across India.</p>
+        <div class="map-stat-card" style="margin-bottom:12px;">
+          <div class="map-stat-num">12</div>
+          <div class="map-stat-label">🔴 Active Critical Crises</div>
+        </div>
+        <div class="map-stat-card teal" style="margin-bottom:12px;">
+          <div class="map-stat-num">48</div>
+          <div class="map-stat-label">🟡 Volunteers On Ground</div>
+        </div>
+        <div class="map-stat-card yellow" style="margin-bottom:12px;">
+          <div class="map-stat-num">7</div>
+          <div class="map-stat-label">🟢 Resource Depots Active</div>
+        </div>
+        <div class="crisis-list">
+          <div class="crisis-list-header">🔴 Live Incidents</div>
+          <div class="crisis-item">
+            <div><div class="crisis-item-name">Flood — Zone C</div><div class="crisis-item-loc">📍 Jabalpur, MP</div></div>
+            <span class="badge badge-red">Critical</span>
+          </div>
+          <div class="crisis-item">
+            <div><div class="crisis-item-name">Medical Emergency</div><div class="crisis-item-loc">📍 Indore, MP</div></div>
+            <span class="badge badge-orange">High</span>
+          </div>
+          <div class="crisis-item">
+            <div><div class="crisis-item-name">Food Shortage</div><div class="crisis-item-loc">📍 Raipur, CG</div></div>
+            <span class="badge badge-teal">Active</span>
+          </div>
+          <div class="crisis-item">
+            <div><div class="crisis-item-name">Shelter Need</div><div class="crisis-item-loc">📍 Nagpur, MH</div></div>
+            <span class="badge badge-orange">High</span>
+          </div>
+        </div>
+      </div>
+      <div class="map-wrapper">
+        <div id="live-map"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VOLUNTEER CTA ===== -->
+<section class="section volunteer-cta">
+  <div class="container">
+    <div class="grid-2" style="gap:60px;">
+      <div class="cta-content">
+        <div class="tag" style="color:var(--yellow);">Join Us</div>
+        <h2 class="cta-title">Be The <span>Change</span> During the Crisis</h2>
+        <p class="cta-desc">Thousands of families need you. Your skills — whether medical, logistics, or driving — can save lives. Register as a volunteer today.</p>
+        <div class="cta-features">
+          <div class="cta-feature"><div class="check-icon">✓</div>Smart skill-based task assignment</div>
+          <div class="cta-feature"><div class="check-icon">✓</div>GPS navigation to crisis location</div>
+          <div class="cta-feature"><div class="check-icon">✓</div>Offline mode — works without internet</div>
+          <div class="cta-feature"><div class="check-icon">✓</div>Earn badges and certificates</div>
+          <div class="cta-feature"><div class="check-icon">✓</div>24/7 coordinator support</div>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;">
+          <button class="btn btn-white" onclick="showToast('Volunteer registration coming soon! 🎉')">
+            🙋 Register as Volunteer
+          </button>
+          <a href="#how" class="btn btn-outline" style="border-color:rgba(255,255,255,0.3);color:#fff;">
+            Learn More
+          </a>
+        </div>
+      </div>
+      <div class="cta-img">
+        <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800&q=80" alt="Volunteers at work" style="width:100%;height:480px;object-fit:cover;border-radius:var(--radius);" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VOLUNTEER TEAM ===== -->
+<section class="section team" id="team">
+  <div class="container">
+    <div class="section-header">
+      <div class="tag">Our Heroes</div>
+      <h2 class="heading">Meet the <span>Volunteer Stars</span></h2>
+      <p class="sub">Top-rated volunteers making a difference on the ground every day</p>
+    </div>
+    <div class="grid-4">
+      <div class="volunteer-card">
+        <img class="volunteer-avatar" src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=400&q=80" alt="Rahul Verma" />
+        <div class="volunteer-info">
+          <div class="volunteer-name">Rahul Verma</div>
+          <div class="volunteer-role">Medical & First-Aid</div>
+          <div class="volunteer-zone">📍 Zone B, Indore</div>
+          <div class="stars">★★★★★</div>
+        </div>
+        <div class="volunteer-stats">
+          <div class="vol-stat"><strong>42</strong><span>Tasks</span></div>
+          <div class="vol-stat"><strong>4.9</strong><span>Rating</span></div>
+        </div>
+      </div>
+      <div class="volunteer-card">
+        <img class="volunteer-avatar" src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80" alt="Priya Singh" />
+        <div class="volunteer-info">
+          <div class="volunteer-name">Priya Singh</div>
+          <div class="volunteer-role">Logistics & Coordination</div>
+          <div class="volunteer-zone">📍 Zone A, Bhopal</div>
+          <div class="stars">★★★★★</div>
+        </div>
+        <div class="volunteer-stats">
+          <div class="vol-stat"><strong>37</strong><span>Tasks</span></div>
+          <div class="vol-stat"><strong>4.8</strong><span>Rating</span></div>
+        </div>
+      </div>
+      <div class="volunteer-card">
+        <img class="volunteer-avatar" src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=400&q=80" alt="Arjun Patel" />
+        <div class="volunteer-info">
+          <div class="volunteer-name">Arjun Patel</div>
+          <div class="volunteer-role">Search & Rescue</div>
+          <div class="volunteer-zone">📍 Zone C, Surat</div>
+          <div class="stars">★★★★☆</div>
+        </div>
+        <div class="volunteer-stats">
+          <div class="vol-stat"><strong>28</strong><span>Tasks</span></div>
+          <div class="vol-stat"><strong>4.6</strong><span>Rating</span></div>
+        </div>
+      </div>
+      <div class="volunteer-card">
+        <img class="volunteer-avatar" src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80" alt="Meena Rao" />
+        <div class="volunteer-info">
+          <div class="volunteer-name">Meena Rao</div>
+          <div class="volunteer-role">Food Distribution</div>
+          <div class="volunteer-zone">📍 Zone D, Nagpur</div>
+          <div class="stars">★★★★★</div>
+        </div>
+        <div class="volunteer-stats">
+          <div class="vol-stat"><strong>55</strong><span>Tasks</span></div>
+          <div class="vol-stat"><strong>4.9</strong><span>Rating</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <button class="btn btn-primary" onclick="showToast('Volunteer directory coming soon! 🙋')">
+        View All Volunteers →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="section testimonials">
+  <div class="container">
+    <div class="section-header">
+      <div class="tag">Testimonials</div>
+      <h2 class="heading">Voices from the <span>Field</span></h2>
+      <p class="sub">Stories from coordinators, volunteers, and citizens who experienced AidConnect</p>
+    </div>
+    <div class="grid-3">
+      <div class="test-card">
+        <p class="test-text">"AidConnect's offline SMS feature was a lifesaver during the Jabalpur floods. Even without internet, our reports reached coordinators instantly. The volunteer arrived within 90 minutes."</p>
+        <div class="test-author">
+          <img class="test-avatar" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80" alt="Ayesha">
+          <div><div class="test-name">Ayesha Sharma</div><div class="test-role">Field Coordinator, Jabalpur</div></div>
+        </div>
+      </div>
+      <div class="test-card">
+        <p class="test-text">"The smart matching algorithm found me tasks I'm actually skilled for. As a nurse, every task I get is medical. No mismatch. It respects my time and puts my skills where they matter."</p>
+        <div class="test-author">
+          <img class="test-avatar" src="https://images.unsplash.com/photo-1547427259-eb34cb9fab89?w=100&q=80" alt="Dr Priya">
+          <div><div class="test-name">Dr. Priya Nair</div><div class="test-role">Volunteer Medic, Kochi</div></div>
+        </div>
+      </div>
+      <div class="test-card">
+        <p class="test-text">"We received help within 3 hours of our SMS report. The volunteer brought food and medicine to our village. We thought we were forgotten. AidConnect reminded us we are not alone."</p>
+        <div class="test-author">
+          <img class="test-avatar" src="https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=100&q=80" alt="Ramesh">
+          <div><div class="test-name">Ramesh Yadav</div><div class="test-role">Flood Survivor, Raipur</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DONATE ===== -->
+<section class="section donate" id="donate">
+  <div class="container">
+    <div class="grid-2 donate-inner" style="gap:60px;">
+      <div>
+        <div class="tag" style="color:rgba(255,255,255,0.7);margin-bottom:14px;">Make An Impact</div>
+        <h2 class="donate-title">Your Donation <br/>Saves Lives</h2>
+        <p class="donate-desc">Every rupee you give directly funds food packets, medicines, rescue operations, and volunteer training for disaster response.</p>
+        <div class="donate-amounts">
+          <button class="amt-btn" onclick="selectAmount(this,'500')">₹500</button>
+          <button class="amt-btn active" onclick="selectAmount(this,'1000')">₹1,000</button>
+          <button class="amt-btn" onclick="selectAmount(this,'2500')">₹2,500</button>
+          <button class="amt-btn" onclick="selectAmount(this,'5000')">₹5,000</button>
+        </div>
+        <div class="donate-input">
+          <input type="number" id="donate-amt" placeholder="Or enter custom amount" value="1000" />
+          <button onclick="showToast('Redirecting to payment gateway... 💳')">Donate Now</button>
+        </div>
+        <p style="margin-top:16px;font-size:13px;color:rgba(255,255,255,0.6);">🔒 100% secure · 80G tax exempt · UPI / Card / Net Banking</p>
+      </div>
+      <div class="donate-img">
+        <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80" alt="Helping hands" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NEWS ===== -->
+<section class="section news" id="news">
+  <div class="container">
+    <div class="section-header">
+      <div class="tag">Latest Updates</div>
+      <h2 class="heading">News from the <span>Ground</span></h2>
+      <p class="sub">Real stories from active operations and field volunteers across India</p>
+    </div>
+    <div class="grid-3">
+      <div class="news-card">
+        <img class="news-img" src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=80" alt="News 1" />
+        <div class="news-body">
+          <div class="news-date">📅 April 15, 2026 · <span class="badge badge-red" style="font-size:11px;">Flood</span></div>
+          <a href="#"><h3 class="news-title">200 Families Evacuated in Jabalpur Flood Response Within 4 Hours</h3></a>
+          <p class="news-desc">AidConnect's smart dispatch assigned 6 volunteers across 3 zones simultaneously, reducing response time by 60%.</p>
+        </div>
+        <div class="news-footer">
+          <div class="news-author"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=60&q=80" alt="Author" /> Ayesha Sharma</div>
+          <span style="font-size:13px;color:var(--gray);">5 min read</span>
+        </div>
+      </div>
+      <div class="news-card">
+        <img class="news-img" src="https://images.unsplash.com/photo-1584432743501-7d5c27a39189?w=600&q=80" alt="News 2" />
+        <div class="news-body">
+          <div class="news-date">📅 April 12, 2026 · <span class="badge badge-teal" style="font-size:11px;">Technology</span></div>
+          <a href="#"><h3 class="news-title">Offline SMS Reporting — How Rural Volunteers Are Filing Reports Without Internet</h3></a>
+          <p class="news-desc">A breakdown of our SMS-based report system that works on basic 2G phones — bridging the digital divide in disaster zones.</p>
+        </div>
+        <div class="news-footer">
+          <div class="news-author"><img src="https://images.unsplash.com/photo-1547427259-eb34cb9fab89?w=60&q=80" alt="Author" /> Vikram Mehta</div>
+          <span style="font-size:13px;color:var(--gray);">8 min read</span>
+        </div>
+      </div>
+      <div class="news-card">
+        <img class="news-img" src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=600&q=80" alt="News 3" />
+        <div class="news-body">
+          <div class="news-date">📅 April 8, 2026 · <span class="badge badge-orange" style="font-size:11px;">Volunteers</span></div>
+          <a href="#"><h3 class="news-title">Meena Rao Completes 50 Relief Tasks — The Story of India's Top Volunteer</h3></a>
+          <p class="news-desc">A Nagpur homemaker turned full-time NGO volunteer, Meena has distributed aid to over 3,000 families in 18 months.</p>
+        </div>
+        <div class="news-footer">
+          <div class="news-author"><img src="https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=60&q=80" alt="Author" /> Priya Singh</div>
+          <span style="font-size:13px;color:var(--gray);">6 min read</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-top">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">
+            <div class="logo-icon">🌿</div>
+            <div class="logo-text" style="color:#fff;">Aid<span>Connect</span></div>
+          </div>
+          <p>India's smart NGO resource allocation and volunteer coordination platform. Real-time crisis response that reaches every corner.</p>
+          <div class="social-links">
+            <a class="social-link" href="#" title="Twitter">🐦</a>
+            <a class="social-link" href="#" title="Facebook">📘</a>
+            <a class="social-link" href="#" title="Instagram">📸</a>
+            <a class="social-link" href="#" title="YouTube">▶️</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-title">Quick Links</div>
+          <div class="footer-links">
+            <a href="#home">Home</a>
+            <a href="#causes">Active Crises</a>
+            <a href="#how">How It Works</a>
+            <a href="#map">Live Map</a>
+            <a href="#team">Volunteers</a>
+            <a href="#news">News & Blog</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-title">Services</div>
+          <div class="footer-links">
+            <a href="#">File a Report</a>
+            <a href="#">Volunteer Portal</a>
+            <a href="#">Resource Tracker</a>
+            <a href="#">SMS Alerts</a>
+            <a href="#">Donor Dashboard</a>
+            <a href="#">Admin Panel</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-title">Stay Updated</div>
+          <p style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:16px;" >Get live crisis alerts and volunteer opportunities in your area.</p>
+          <div class="footer-newsletter">
+            <input type="email" placeholder="Your email address" />
+            <button onclick="showToast('Subscribed to alerts! 🔔')">Subscribe to Alerts</button>
+          </div>
+          <div class="footer-contact" style="margin-top:20px;">
+            <p>📞 1800-NGO-HELP (Toll Free)</p>
+            <p>📧 info@aidconnect.org</p>
+            <p>📍 C-12, Civil Lines, Bhopal, MP 462001</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© 2026 AidConnect — Smart NGO Resource System. All rights reserved.</span>
+      <span>Made with ❤️ for India's crisis response</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== REPORT MODAL ===== -->
+<div class="modal-overlay" id="reportModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 File a Crisis Report</div>
+      <div class="modal-close" onclick="closeReportModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Report Title *</label>
+        <input class="form-input" type="text" placeholder="e.g. Flooding in Zone C residential area" id="report-title" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category *</label>
+        <select class="form-select" id="report-category">
+          <option value="">Select crisis type</option>
+          <option value="flood">🌊 Flood / Water Crisis</option>
+          <option value="food">🍱 Food Shortage</option>
+          <option value="medical">🏥 Medical Emergency</option>
+          <option value="shelter">🏠 Shelter Needed</option>
+          <option value="infrastructure">🚧 Infrastructure Damage</option>
+          <option value="other">📌 Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Severity Level *</label>
+        <div class="severity-grid">
+          <div class="sev-btn" onclick="setSeverity(this,'low')">🟢 Low</div>
+          <div class="sev-btn" onclick="setSeverity(this,'medium')">🟡 Medium</div>
+          <div class="sev-btn" onclick="setSeverity(this,'high')">🟠 High</div>
+          <div class="sev-btn critical" onclick="setSeverity(this,'critical')">🔴 Critical</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location (City / Address) *</label>
+        <input class="form-input" type="text" placeholder="e.g. Napier Town, Jabalpur, MP" id="report-location" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" placeholder="Describe the situation, number of people affected, resources needed..." id="report-desc"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Phone Number</label>
+        <input class="form-input" type="tel" placeholder="+91 98765 43210" id="report-phone" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeReportModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitReport()">📤 Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FLOATING BUTTONS ===== -->
+<div class="float-sos">
+  <div class="float-report-btn" onclick="openReportModal()" title="File Report">📋</div>
+  <div class="float-sos-btn" onclick="triggerSOS()" title="SOS Emergency">🆘</div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast">✅ <span id="toast-msg"></span></div>
+
+<script>
+  /* === COUNTER ANIMATION === */
+  function animateCount(el) {
+    const target = parseInt(el.dataset.target);
+    const duration = 2000;
+    const step = target / (duration / 16);
+    let current = 0;
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = Math.floor(current).toLocaleString('en-IN');
+      if (current >= target) clearInterval(timer);
+    }, 16);
+  }
+
+  /* === HERO STATS === */
+  function animateHeroStats() {
+    const els = [
+      { el: document.getElementById('h-stat1'), target: 47 },
+      { el: document.getElementById('h-stat2'), target: 3.8 },
+      { el: document.getElementById('h-stat3'), target: 52 },
+      { el: document.getElementById('h-stat4'), target: 18 },
+    ];
+    els.forEach(({ el, target }) => {
+      let cur = 0;
+      const step = target / 80;
+      const timer = setInterval(() => {
+        cur = Math.min(cur + step, target);
+        el.textContent = target % 1 === 0 ? Math.floor(cur) : cur.toFixed(1);
+        if (cur >= target) clearInterval(timer);
+      }, 20);
+    });
+  }
+
+  /* === INTERSECTION OBSERVER === */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        if (e.target.classList.contains('count')) animateCount(e.target);
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.count').forEach(el => observer.observe(el));
+  document.querySelectorAll('.cause-card,.step-card,.volunteer-card,.test-card,.news-card').forEach(el => observer.observe(el));
+
+  /* Trigger hero stats when page loads */
+  window.addEventListener('load', () => setTimeout(animateHeroStats, 500));
+
+  /* === LEAFLET MAP === */
+  const map = L.map('live-map', { zoomControl: true }).setView([22.9, 78.6], 5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors &copy; <a href="https://carto.com">CARTO</a>', maxZoom: 19
+  }).addTo(map);
+
+  const crisisIcon = L.divIcon({ html: '<div style="background:#EF4444;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 8px rgba(239,68,68,0.8);"></div>', className: '', iconSize: [16, 16] });
+  const volIcon    = L.divIcon({ html: '<div style="background:#22C55E;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 6px rgba(34,197,94,0.8);"></div>', className: '', iconSize: [14, 14] });
+
+  const incidents = [
+    [23.18, 79.99, '🌊 Flood — Jabalpur', 'critical'],
+    [22.72, 75.86, '🏥 Medical — Indore', 'high'],
+    [21.25, 81.63, '🍱 Food — Raipur', 'active'],
+    [21.15, 79.09, '🏠 Shelter — Nagpur', 'high'],
+    [21.19, 72.83, '📦 Resources — Surat', 'active'],
+    [26.92, 75.79, '🚧 Infra — Jaipur', 'medium'],
+  ];
+
+  incidents.forEach(([lat, lng, label]) => {
+    L.marker([lat, lng], { icon: crisisIcon })
+      .addTo(map)
+      .bindPopup(`<strong>${label}</strong><br><small>Click to view details</small>`);
+  });
+
+  // Volunteers
+  [[23.2, 79.8],[22.8, 75.9],[21.3, 81.7],[21.2, 79.2]].forEach(([lat, lng]) => {
+    L.marker([lat, lng], { icon: volIcon }).addTo(map).bindPopup('🙋 Volunteer On Ground');
+  });
+
+  /* === MODAL === */
+  let selectedSeverity = null;
+  function openReportModal() { document.getElementById('reportModal').classList.add('open'); }
+  function closeReportModal() { document.getElementById('reportModal').classList.remove('open'); }
+  function closeModal(e) { if (e.target === document.getElementById('reportModal')) closeReportModal(); }
+  function setSeverity(el, val) {
+    document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selectedSeverity = val;
+  }
+  function submitReport() {
+    const title    = document.getElementById('report-title').value.trim();
+    const category = document.getElementById('report-category').value;
+    const location = document.getElementById('report-location').value.trim();
+    if (!title || !category || !location || !selectedSeverity) {
+      showToast('⚠️ Please fill all required fields'); return;
+    }
+    closeReportModal();
+    showToast('✅ Report submitted! Matching volunteers now...');
+    // Reset form
+    document.getElementById('report-title').value = '';
+    document.getElementById('report-category').value = '';
+    document.getElementById('report-location').value = '';
+    document.getElementById('report-desc').value = '';
+    document.getElementById('report-phone').value = '';
+    document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active'));
+    selectedSeverity = null;
+  }
+
+  /* === TOAST === */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  /* === SOS === */
+  function triggerSOS() {
+    if (confirm('🆘 Confirm SOS Alert?\nThis will immediately notify emergency coordinators and dispatch the nearest volunteer.')) {
+      showToast('🆘 SOS Sent! Help is on the way. Stay where you are.');
+      setTimeout(() => showToast('📞 Coordinator calling you at +91-1800-NGO-HELP'), 4000);
+    }
+  }
+
+  /* === DONATE AMOUNTS === */
+  function selectAmount(el, val) {
+    document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('donate-amt').value = val;
+  }
+
+  /* === HAMBURGER === */
+  function toggleMenu() {
+    const links = document.querySelector('.nav-links');
+    links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+    links.style.flexDirection = 'column';
+    links.style.position = 'absolute';
+    links.style.top = '72px';
+    links.style.left = '0';
+    links.style.right = '0';
+    links.style.background = '#fff';
+    links.style.padding = '20px 24px';
+    links.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
+  }
+
+  /* === PROGRESS BARS ANIMATE ON SCROLL === */
+  const progressObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const fill = e.target.querySelector('.progress-fill');
+        if (fill) { const w = fill.style.width; fill.style.width = '0'; setTimeout(() => fill.style.width = w, 100); }
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.cause-card').forEach(c => progressObserver.observe(c));
+
+  /* === NAVBAR SCROLL === */
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    nav.style.boxShadow = window.scrollY > 50 ? '0 4px 32px rgba(0,0,0,0.12)' : '0 2px 20px rgba(0,0,0,0.08)';
+  });
+</script>
+</body>
+</html>

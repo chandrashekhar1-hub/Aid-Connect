@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Firebase Premium Auth</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-wrapper {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+        .user-card {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px dashed rgba(249, 115, 22, 0.3);
+        }
+        .user-card p {
+            margin-bottom: 10px;
+            color: var(--text-muted);
+        }
+        .user-card strong {
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+    <div id="toast-container"></div>
+
+    <div class="dashboard-wrapper">
+        <div class="auth-container">
+            <div class="auth-header">
+                <i class="fa-solid fa-shield-check logo-icon" style="color: #10b981;"></i>
+                <h2>Welcome to the Portal</h2>
+                <p>You have successfully authenticated via Firebase.</p>
+            </div>
+
+            <div class="user-card" id="user-details" style="display: none;">
+                <h3>Your Profile</h3>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
+                <p><strong>Email:</strong> <span id="dash-email">Loading...</span></p>
+                <p><strong>Phone:</strong> <span id="dash-phone">Loading...</span></p>
+                <p><strong>Role/Status:</strong> <span id="dash-role">Loading...</span> 
+                   <i class="fa-solid fa-circle-check" style="color: #10b981; margin-left: 5px;"></i> Verified
+                </p>
+            </div>
+
+            <button class="submit-btn outline" style="margin-top: 30px; width: 100%;" onclick="logout()">
+                <i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 10px;"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+
+    <!-- App Logs -->
+    <script src="js/firebase-config.js"></script>
+    <script>
+        // Check Auth Status on Load
+        
+        // DEMO BYPASS: Show mock dashboard if API key is not set
+        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+            document.getElementById('user-details').style.display = 'block';
+            document.getElementById('dash-email').innerText = "demo-user@aidconnect.org";
+            document.getElementById('dash-phone').innerText = "+91 98765 43210";
+            document.getElementById('dash-role').innerText = "Demo Volunteer";
+            
+            // Override logout for demo
+            window.logout = function() {
+                window.location.href = 'index.html';
+            };
+        } else {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    document.getElementById('user-details').style.display = 'block';
+                    document.getElementById('dash-email').innerText = user.email || "No Email";
+                    
+                    try {
+                        const doc = await db.collection('users').doc(user.uid).get();
+                        if (doc.exists) {
+                            const data = doc.data();
+                            document.getElementById('dash-phone').innerText = data.phone || "Not provided";
+                            document.getElementById('dash-role').innerText = data.role || "User";
+                        } else {
+                            document.getElementById('dash-role').innerText = "Google User (No Role)";
+                        }
+                    } catch (e) {
+                        console.error("Firestore read error:", e);
+                    }
+                } else {
+                    // Not logged in
+                    window.location.href = 'index.html';
+                }
+            });
+
+            function logout() {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
+            }
+        }
+    </script>
+</body>
+</html>

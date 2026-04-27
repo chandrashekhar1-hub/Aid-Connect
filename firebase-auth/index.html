@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div class="auth-wrapper">
+        <div class="background-blobs">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
+
+        <div class="auth-container">
+            <div class="auth-header">
+                <i class="fa-solid fa-leaf logo-icon"></i>
+                <h2>Premium Auth</h2>
+                <p>Secure Firebase Portal</p>
+            </div>
+
+            <!-- Demo Accounts Row -->
+            <div class="demo-accounts">
+                <p class="demo-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Demo Accounts Autofill</p>
+                <div class="demo-buttons">
+                    <button class="demo-btn admin" onclick="autofill('admin')">Admin</button>
+                    <button class="demo-btn volunteer" onclick="autofill('volunteer')">Volunteer</button>
+                    <button class="demo-btn donor" onclick="autofill('donor')">Donor</button>
+                </div>
+            </div>
+
+            <!-- Toggle Navigation -->
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="tab-login" onclick="toggleView('login')">Sign In</button>
+                <button class="tab-btn" id="tab-register" onclick="toggleView('register')">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active">
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <div class="form-options">
+                    <a href="#" class="forgot-link" onclick="forgotPassword()">Forgot Password?</a>
+                </div>
+                <button type="submit" class="submit-btn" id="login-btn">
+                    <span>Sign In</span>
+                    <div class="spinner"></div>
+                </button>
+                
+                <div class="divider"><span>OR CONTINUE WITH</span></div>
+
+                <button type="button" class="google-btn" onclick="signInWithGoogle()">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+                    Google
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form" style="display: none;">
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="reg-email" placeholder="Email Address" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="tel" id="reg-phone" placeholder="Mobile (+91...)" required>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="reg-password" placeholder="Password" required>
+                </div>
+
+                <div class="input-group select-group">
+                    <i class="fa-solid fa-user-tag"></i>
+                    <select id="reg-role" required>
+                        <option value="" disabled selected>Select Role</option>
+                        <option value="Volunteer">Volunteer</option>
+                        <option value="Donor">Donor</option>
+                        <option value="NGO">NGO / Coordinator</option>
+                    </select>
+                </div>
+
+                <!-- reCAPTCHA Container -->
+                <div id="recaptcha-container" class="recaptcha"></div>
+
+                <!-- OTP Section (Hidden initially) -->
+                <div id="otp-section" style="display: none;">
+                    <p class="otp-instruction">Enter the 6-digit OTP sent to your phone</p>
+                    <div class="input-group">
+                        <i class="fa-solid fa-comment-sms"></i>
+                        <input type="text" id="reg-otp" placeholder="Enter OTP" maxlength="6">
+                    </div>
+                    <button type="button" class="submit-btn outline" id="verify-otp-btn" onclick="verifyOTP()">Verify OTP</button>
+                </div>
+
+                <button type="button" class="submit-btn" id="send-otp-btn" onclick="sendOTP()">
+                    <span>Send Verification OTP</span>
+                    <div class="spinner"></div>
+                </button>
+                
+                <button type="submit" class="submit-btn success" id="register-btn" style="display: none;">
+                    <span>Complete Registration</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Compat versions for simpler module-less setup) -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+
+    <!-- Custom Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

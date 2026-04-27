@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Inventory — AidConnect</title>
+  <meta name="description" content="Real-time resource inventory tracking across all relief zones. AidConnect NGO."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{--primary:#E85D04;--primary-dk:#C44B00;--yellow:#FFBA08;--teal:#2EC4B6;--navy:#0D1B2A;--navy-lt:#162435;--dark:#1A1A2E;--gray:#6B7280;--gray-lt:#F3F4F6;--white:#fff;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;--border:#E5E7EB;--shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 8px 40px rgba(0,0,0,.14);--radius:14px;--radius-sm:8px;--transition:all .25s cubic-bezier(.4,0,.2,1);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--gray-lt);color:var(--dark);}
+    a{text-decoration:none;color:inherit;}
+    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px;}
+    .navbar{background:var(--navy);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .nav-brand{display:flex;align-items:center;gap:10px;}
+    .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--yellow));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .brand-name{font-family:'Playfair Display',serif;font-size:19px;font-weight:800;color:#fff;}
+    .brand-name span{color:var(--primary);}
+    .nav-links{display:flex;gap:4px;}
+    .nav-link{padding:7px 14px;border-radius:50px;font-size:13px;color:rgba(255,255,255,.65);transition:var(--transition);}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,.1);color:#fff;}
+    .nav-right{display:flex;gap:10px;}
+    .btn-nav{padding:8px 18px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:var(--transition);}
+    .btn-prim{background:var(--primary);color:#fff;} .btn-prim:hover{background:var(--primary-dk);}
+    .btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);}
+
+    .page-header{background:linear-gradient(135deg,var(--navy),#1A3050);color:#fff;padding:36px 0 44px;}
+    .container{max-width:1320px;margin:0 auto;padding:0 28px;}
+    .ph-flex{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px;}
+    .ph-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;}
+    .ph-sub{font-size:14px;color:rgba(255,255,255,.55);margin-top:4px;}
+    .ph-btns{display:flex;gap:10px;}
+    .btn-w{padding:9px 20px;border-radius:50px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .btn-w:hover{background:rgba(255,255,255,.18);}
+    .btn-orange{padding:9px 22px;border-radius:50px;background:var(--primary);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .btn-orange:hover{background:var(--primary-dk);}
+
+    .stat-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:-28px;}
+    .sc{background:#fff;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-lg);border-top:4px solid var(--c,var(--primary));position:relative;}
+    .sc-icon{font-size:24px;margin-bottom:10px;}
+    .sc-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;}
+    .sc-lbl{font-size:12px;color:var(--gray);margin-top:3px;}
+    .sc-badge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:50px;}
+
+    .content{padding:48px 0 60px;}
+    .grid-main{display:grid;grid-template-columns:1fr 340px;gap:20px;}
+
+    .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);}
+    .card-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+    .card-title{font-size:15px;font-weight:700;}
+    .card-body{padding:20px 22px;}
+    .card-action{font-size:12px;font-weight:700;color:var(--primary);background:none;border:none;cursor:pointer;font-family:inherit;}
+
+    /* FILTERS */
+    .inv-filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .search-wrap{position:relative;}
+    .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--gray);}
+    .search-inp{padding:9px 13px 9px 36px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;width:220px;transition:var(--transition);}
+    .search-inp:focus{border-color:var(--primary);}
+    .fil-sel{padding:9px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;background:#fff;cursor:pointer;}
+    .fil-sel:focus{border-color:var(--primary);}
+
+    /* TABLE */
+    table{width:100%;border-collapse:collapse;}
+    thead th{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;padding:11px 16px;background:#FAFAFA;text-align:left;border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid #F5F5F5;transition:var(--transition);}
+    tbody tr:hover td{background:#FFF7ED;}
+    tbody td{padding:14px 16px;font-size:13px;vertical-align:middle;}
+    tbody tr:last-child td{border-bottom:none;}
+    .item-name{font-weight:700;font-size:14px;}
+    .bar{height:6px;background:#F0F0F0;border-radius:50px;overflow:hidden;margin-top:5px;width:120px;}
+    .bar-fill{height:100%;border-radius:50px;}
+
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;}
+    .b-ok{background:rgba(34,197,94,.1);color:var(--green);}
+    .b-low{background:rgba(239,68,68,.1);color:var(--red);}
+    .b-warn{background:rgba(245,158,11,.1);color:#D97706;}
+    .b-monitor{background:rgba(59,130,246,.1);color:var(--blue);}
+    .b-crit{background:rgba(239,68,68,.12);color:#B91C1C;font-weight:800;}
+
+    /* ZONE CARDS */
+    .zone-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+    .zone-card{border-radius:var(--radius-sm);border:1.5px solid var(--border);padding:14px;cursor:pointer;transition:var(--transition);}
+    .zone-card:hover,.zone-card.active{border-color:var(--primary);background:rgba(232,93,4,.04);}
+    .zc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .zc-name{font-size:13px;font-weight:700;}
+    .zc-status{font-size:10px;padding:3px 9px;border-radius:50px;font-weight:700;}
+    .zc-stat{display:flex;flex-direction:column;gap:5px;}
+    .zc-row{display:flex;justify-content:space-between;font-size:11px;}
+    .zc-lbl{color:var(--gray);}
+    .zc-val{font-weight:700;}
+
+    /* RIGHT SIDEBAR */
+    .right-col{display:flex;flex-direction:column;gap:16px;}
+    .dispatch-form{padding:20px;}
+    .form-group{margin-bottom:12px;}
+    .form-label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--gray);text-transform:uppercase;letter-spacing:.3px;}
+    .form-input,.form-select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;transition:var(--transition);}
+    .form-input:focus,.form-select:focus{border-color:var(--primary);}
+    .btn-dispatch{width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--primary);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);margin-top:4px;}
+    .btn-dispatch:hover{background:var(--primary-dk);}
+
+    /* CHART */
+    .chart-wrap{padding:18px 20px;}
+
+    /* HISTORY */
+    .hist-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .hist-item:last-child{border-bottom:none;}
+    .hist-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .hist-title{font-size:13px;font-weight:700;}
+    .hist-sub{font-size:11px;color:var(--gray);margin-top:2px;}
+
+    /* MODAL */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+    .overlay.open{display:flex;}
+    .modal{background:#fff;border-radius:20px;width:92%;max-width:500px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.25);animation:mIn .3s ease;}
+    @keyframes mIn{from{opacity:0;transform:scale(.92) translateY(14px);}to{opacity:1;transform:none;}}
+    .modal-head{padding:22px 26px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .modal-title{font-size:18px;font-weight:800;}
+    .modal-x{width:32px;height:32px;border-radius:50%;background:var(--gray-lt);border:none;cursor:pointer;font-size:15px;transition:var(--transition);}
+    .modal-x:hover{background:var(--red);color:#fff;}
+    .modal-body{padding:22px 26px;}
+    .modal-foot{padding:16px 26px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+    .btn{padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:var(--transition);}
+    .btn-p{background:var(--primary);color:#fff;} .btn-o{background:none;border:1.5px solid var(--border);color:var(--dark);}
+
+    .low-stock-alert{background:rgba(239,68,68,.06);border:1.5px solid rgba(239,68,68,.2);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px;}
+
+    .toast{position:fixed;top:80px;right:24px;z-index:9999;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;transform:translateX(110%);transition:transform .4s;background:var(--green);}
+    .toast.show{transform:translateX(0);} .toast.warn{background:var(--primary);} .toast.danger{background:var(--red);}
+
+    @media(max-width:1100px){.grid-main{grid-template-columns:1fr;}.stat-cards{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:768px){.nav-links{display:none;}.stat-cards{grid-template-columns:repeat(2,1fr);}.zone-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Aid<span>Connect</span></div></div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="reports.html">Reports</a>
+    <a class="nav-link" href="map.html">Crisis Map</a>
+    <a class="nav-link" href="volunteer.html">Volunteers</a>
+    <a class="nav-link active" href="inventory.html">Inventory</a>
+    <a class="nav-link" href="donors.html">Donors</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-nav btn-prim" onclick="openAddModal()">+ Add Stock</button>
+    <a href="login.html" class="btn-nav btn-ghost">Login</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <div class="ph-flex">
+      <div>
+        <div class="ph-title">📦 Resource Inventory</div>
+        <div class="ph-sub">Real-time stock tracking · Smart dispatch · Low-stock alerts</div>
+      </div>
+      <div class="ph-btns">
+        <button class="btn-w" onclick="exportInventory()">⬇ Export</button>
+        <button class="btn-orange" onclick="openDispatchModal()">🚚 Dispatch Resources</button>
+      </div>
+    </div>
+    <div class="stat-cards">
+      <div class="sc" style="--c:var(--green);">
+        <div class="sc-badge" style="background:rgba(34,197,94,.1);color:var(--green);">All Zones</div>
+        <div class="sc-icon">🍱</div>
+        <div class="sc-num" id="sc-food">0</div>
+        <div class="sc-lbl">Food Packets</div>
+      </div>
+      <div class="sc" style="--c:var(--red);">
+        <div class="sc-badge" style="background:rgba(239,68,68,.1);color:var(--red);">⚠️ Low: C</div>
+        <div class="sc-icon">💊</div>
+        <div class="sc-num" id="sc-med">0</div>
+        <div class="sc-lbl">Medicine Kits</div>
+      </div>
+      <div class="sc" style="--c:var(--primary);">
+        <div class="sc-badge" style="background:rgba(239,68,68,.1);color:var(--red);">⚠️ Crit: C</div>
+        <div class="sc-icon">🛏️</div>
+        <div class="sc-num" id="sc-blanket">0</div>
+        <div class="sc-lbl">Blankets</div>
+      </div>
+      <div class="sc" style="--c:var(--blue);">
+        <div class="sc-badge" style="background:rgba(59,130,246,.1);color:var(--blue);">Adequate</div>
+        <div class="sc-icon">💧</div>
+        <div class="sc-num" id="sc-water">0</div>
+        <div class="sc-lbl">Water Cans (20L)</div>
+      </div>
+      <div class="sc" style="--c:var(--yellow);">
+        <div class="sc-badge" style="background:rgba(255,186,8,.1);color:#92400E;">Monitor</div>
+        <div class="sc-icon">⛺</div>
+        <div class="sc-num" id="sc-tents">0</div>
+        <div class="sc-lbl">Tents</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="container">
+    <!-- LOW STOCK ALERT -->
+    <div class="low-stock-alert">
+      <div style="font-size:20px;">🚨</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--red);">Low Stock Alert — Zone C (Jabalpur)</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:3px;">Food Packets: 48 remaining (critical!) · Blankets: 32 remaining (critical!) · Suggest immediate dispatch from Zone A.</div>
+        <button onclick="showToast('Dispatching 200 food packets + 80 blankets from Zone A to Zone C 🚚','warn')" style="margin-top:10px;padding:8px 18px;border-radius:50px;background:var(--red);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🚚 Auto-Dispatch Now</button>
+      </div>
+    </div>
+
+    <div class="grid-main">
+      <!-- MAIN TABLE -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- ZONE FILTER CARDS -->
+        <div class="zone-grid" id="zone-cards"></div>
+
+        <!-- TABLE CARD -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">📋 Stock by Item & Zone</div>
+            <div class="inv-filters">
+              <div class="search-wrap">
+                <span class="si">🔍</span>
+                <input class="search-inp" type="text" placeholder="Search items..." id="inv-search" oninput="filterTable()"/>
+              </div>
+              <select class="fil-sel" id="fil-zone" onchange="filterTable()">
+                <option value="">All Zones</option>
+                <option value="A">Zone A — Bhopal</option>
+                <option value="B">Zone B — Indore</option>
+                <option value="C">Zone C — Jabalpur</option>
+                <option value="D">Zone D — Nagpur</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr><th>Item</th><th>Zone A — Bhopal</th><th>Zone B — Indore</th><th>Zone C — Jabalpur</th><th>Zone D — Nagpur</th><th>Total</th><th>Stock Level</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody id="inv-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CHART CARD -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">📊 Stock Distribution by Zone</div>
+            <button class="card-action" onclick="showToast('Viewing full analytics...')">Details</button>
+          </div>
+          <div class="chart-wrap"><canvas id="invChart" height="160"></canvas></div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="right-col">
+
+        <!-- DISPATCH FORM -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">🚚 Quick Dispatch</div></div>
+          <div class="dispatch-form">
+            <div class="form-group">
+              <label class="form-label">From Zone</label>
+              <select class="form-select" id="d-from">
+                <option>Zone A — Bhopal</option><option>Zone B — Indore</option>
+                <option>Zone C — Jabalpur</option><option>Zone D — Nagpur</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Zone</label>
+              <select class="form-select" id="d-to">
+                <option>Zone C — Jabalpur</option><option>Zone A — Bhopal</option>
+                <option>Zone B — Indore</option><option>Zone D — Nagpur</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Item</label>
+              <select class="form-select" id="d-item">
+                <option>Food Packets</option><option>Medicine Kits</option>
+                <option>Blankets</option><option>Water Cans</option><option>Tents</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Quantity</label>
+              <input class="form-input" type="number" id="d-qty" placeholder="e.g. 100" min="1"/>
+            </div>
+            <button class="btn-dispatch" onclick="dispatchItems()">🚚 Dispatch Now</button>
+          </div>
+        </div>
+
+        <!-- ADD STOCK FORM -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">➕ Add Stock</div></div>
+          <div class="dispatch-form">
+            <div class="form-group">
+              <label class="form-label">Zone</label>
+              <select class="form-select" id="a-zone">
+                <option>Zone A — Bhopal</option><option>Zone B — Indore</option>
+                <option>Zone C — Jabalpur</option><option>Zone D — Nagpur</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Item</label>
+              <select class="form-select" id="a-item">
+                <option>Food Packets</option><option>Medicine Kits</option>
+                <option>Blankets</option><option>Water Cans</option><option>Tents</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Quantity to Add</label>
+              <input class="form-input" type="number" id="a-qty" placeholder="e.g. 200" min="1"/>
+            </div>
+            <button class="btn-dispatch" style="background:var(--green);" onclick="addStock()">➕ Add to Inventory</button>
+          </div>
+        </div>
+
+        <!-- DISPATCH HISTORY -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">📜 Dispatch History</div>
+            <button class="card-action" onclick="showToast('Viewing full dispatch log...')">View All</button>
+          </div>
+          <div style="padding:8px 20px;" id="hist-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">➕ Bulk Add Stock</div><button class="modal-x" onclick="closeModal('addModal')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Add bulk items from donor or procurement.</p>
+      <div class="form-group"><label class="form-label">Item Type</label><select class="form-select" id="bulk-item"><option>Food Packets</option><option>Medicine Kits</option><option>Blankets</option><option>Water Cans</option><option>Tents</option></select></div>
+      <div class="form-group"><label class="form-label">Zone</label><select class="form-select" id="bulk-zone"><option>Zone A — Bhopal</option><option>Zone B — Indore</option><option>Zone C — Jabalpur</option><option>Zone D — Nagpur</option></select></div>
+      <div class="form-group"><label class="form-label">Quantity</label><input class="form-input" type="number" id="bulk-qty" placeholder="e.g. 500"/></div>
+      <div class="form-group"><label class="form-label">Source / Donor</label><input class="form-input" type="text" id="bulk-src" placeholder="e.g. UNICEF, PM Relief Fund"/></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-o" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-p" onclick="bulkAdd()">Add Stock ✅</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* ── DATA ── */
+let inventory = [];
+
+const history = [
+  { icon:'🚚', bg:'rgba(34,197,94,.1)', title:'200 Food Packets → Zone C', sub:'from Zone A · dispatched by Admin', time:'2h ago' },
+  { icon:'💊', bg:'rgba(239,68,68,.1)', title:'50 Medicine Kits → Zone D', sub:'from Zone B · for Nagpur camp', time:'5h ago' },
+  { icon:'🛏️', bg:'rgba(59,130,246,.1)', title:'100 Blankets → Zone C', sub:'from Zone A · emergency request', time:'8h ago' },
+  { icon:'➕', bg:'rgba(255,186,8,.1)', title:'500 Food Packets added', sub:'Zone B · Donor: UNICEF fund', time:'1d ago' },
+];
+
+/* ── RENDER STATS ── */
+function renderStats() {
+  const tot = (key) => inventory.find(i=>i.name.toLowerCase().startsWith(key.toLowerCase())) || {a:0,b:0,c:0,d:0};
+  const food = tot('Food'); countUp('sc-food', food.a+food.b+food.c+food.d);
+  const med  = tot('Med');  countUp('sc-med',  med.a+med.b+med.c+med.d);
+  const blan = tot('Blan'); countUp('sc-blanket', blan.a+blan.b+blan.c+blan.d);
+  const wat  = tot('Water'); countUp('sc-water', wat.a+wat.b+wat.c+wat.d);
+  const ten  = tot('Tent'); countUp('sc-tents', ten.a+ten.b+ten.c+ten.d);
+}
+function countUp(id, v, dur=1400) { const el=document.getElementById(id); if(!el) return; let c=0,s=v/(dur/16); const t=setInterval(()=>{c=Math.min(c+s,v); el.textContent=Math.floor(c).toLocaleString('en-IN'); if(c>=v)clearInterval(t);},16); }
+
+/* ── ZONE CARDS ── */
+function renderZoneCards() {
+  const zones = [
+    { name:'Zone A — Bhopal',    key:'a', status:'Adequate', color:'var(--green)', total: inventory.reduce((s,i)=>s+i.a,0) },
+    { name:'Zone B — Indore',    key:'b', status:'Adequate', color:'var(--green)', total: inventory.reduce((s,i)=>s+i.b,0) },
+    { name:'Zone C — Jabalpur',  key:'c', status:'⚠️ Critical', color:'var(--red)', total: inventory.reduce((s,i)=>s+i.c,0) },
+    { name:'Zone D — Nagpur',    key:'d', status:'Adequate', color:'var(--green)', total: inventory.reduce((s,i)=>s+i.d,0) },
+  ];
+  document.getElementById('zone-cards').innerHTML = zones.map(z => `
+    <div class="zone-card" onclick="showToast('Filtering to ${z.name}...')">
+      <div class="zc-head">
+        <div class="zc-name">${z.name}</div>
+        <span class="zc-status" style="background:rgba(34,197,94,.1);color:${z.color};">${z.status}</span>
+      </div>
+      <div class="zc-stat">
+        <div class="zc-row"><span class="zc-lbl">Total Items</span><span class="zc-val">${z.total.toLocaleString('en-IN')}</span></div>
+        <div class="zc-row"><span class="zc-lbl">Low Stock Items</span><span class="zc-val" style="color:${z.key==='c'?'var(--red)':'var(--green)'};">${z.key==='c'?'2':'0'}</span></div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── TABLE ── */
+function renderTable(items) {
+  items = items || inventory;
+  const q = document.getElementById('inv-search').value.toLowerCase();
+  if (q) items = items.filter(i => i.name.toLowerCase().includes(q));
+
+  function statusBadge(item) {
+    const low = [item.c].filter(v=>v<item.threshold).length > 0;
+    const veryLow = item.c < item.threshold / 2;
+    if(veryLow) return `<span class="badge b-crit">⚠️ Critical</span>`;
+    if(low)     return `<span class="badge b-warn">⚠️ Low Stock</span>`;
+    const total = item.a+item.b+item.c+item.d;
+    if(total < item.threshold*4) return `<span class="badge b-monitor">Monitor</span>`;
+    return `<span class="badge b-ok">✓ Adequate</span>`;
+  }
+
+  function cell(v, warn) {
+    const cls = warn && v < 100 ? 'color:var(--red);font-weight:800;' : '';
+    return `<span style="${cls}">${v.toLocaleString('en-IN')}${warn&&v<100?' ⚠️':''}</span>`;
+  }
+
+  const zoneFilter = document.getElementById('fil-zone').value;
+  if (zoneFilter) {
+    const zKey = zoneFilter.toLowerCase();
+    items = items.map(item => ({ ...item, a: zKey==='a'?item.a:0, b: zKey==='b'?item.b:0, c: zKey==='c'?item.c:0, d: zKey==='d'?item.d:0 }));
+  }
+
+  document.getElementById('inv-tbody').innerHTML = items.map(item => {
+    const total = item.a+item.b+item.c+item.d;
+    const pct = Math.min(100, (total/3000)*100);
+    const barColor = item.c < item.threshold ? '#EF4444' : pct > 60 ? '#22C55E' : '#F59E0B';
+    const showAll = !zoneFilter;
+    return `<tr>
+      <td><div class="item-name">${item.emoji} ${item.name}</div></td>
+      ${showAll ? `<td>${cell(item.a,false)}</td><td>${cell(item.b,false)}</td><td>${cell(item.c,true)}</td><td>${cell(item.d,false)}</td>` : `<td colspan="4" style="font-size:15px;font-weight:700;">${cell(total, zoneFilter==='c')}</td>`}
+      <td>
+        <strong>${total.toLocaleString('en-IN')}</strong>
+        <div class="bar"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+      </td>
+      <td>${statusBadge(item)}</td>
+      <td><button onclick="quickDispatch('${item.name}')" style="padding:6px 13px;border-radius:50px;background:rgba(232,93,4,.1);color:var(--primary);border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:var(--transition);">Dispatch</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTable() { renderTable(inventory); }
+
+/* ── CHART ── */
+function initChart() {
+  new Chart(document.getElementById('invChart'), {
+    type: 'bar',
+    data: {
+      labels: inventory.map(i=>i.name.split(' ')[0]),
+      datasets: [
+        { label:'Zone A', data:inventory.map(i=>i.a), backgroundColor:'#E85D04', borderRadius:4 },
+        { label:'Zone B', data:inventory.map(i=>i.b), backgroundColor:'#3B82F6', borderRadius:4 },
+        { label:'Zone C', data:inventory.map(i=>i.c), backgroundColor:'#EF4444', borderRadius:4 },
+        { label:'Zone D', data:inventory.map(i=>i.d), backgroundColor:'#22C55E', borderRadius:4 },
+      ]
+    },
+    options: { responsive:true, plugins:{ legend:{ position:'top', labels:{ usePointStyle:true, font:{size:11} } } }, scales:{ y:{ beginAtZero:true, grid:{ color:'rgba(0,0,0,.04)' }, ticks:{ font:{size:10} } }, x:{ grid:{ display:false }, ticks:{ font:{size:10} } } } }
+  });
+}
+
+/* ── HISTORY ── */
+function renderHistory() {
+  document.getElementById('hist-list').innerHTML = history.map(h => `
+    <div class="hist-item">
+      <div class="hist-ic" style="background:${h.bg};">${h.icon}</div>
+      <div>
+        <div class="hist-title">${h.title}</div>
+        <div class="hist-sub">${h.sub} · ${h.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── ACTIONS ── */
+function dispatchItems() {
+  const qty = parseInt(document.getElementById('d-qty').value);
+  const from = document.getElementById('d-from').value;
+  const to   = document.getElementById('d-to').value;
+  const item = document.getElementById('d-item').value;
+  if(!qty || qty<1) { showToast('Enter a quantity!','warn'); return; }
+  history.unshift({ icon:'🚚', bg:'rgba(34,197,94,.1)', title:`${qty} ${item} → ${to.split(' — ')[0]}`, sub:`from ${from.split(' — ')[0]}`, time:'just now' });
+  renderHistory();
+  document.getElementById('d-qty').value='';
+  showToast(`✅ ${qty} ${item} dispatched to ${to}!`);
+}
+
+function addStock() {
+  const qty = parseInt(document.getElementById('a-qty').value);
+  const zone = document.getElementById('a-zone').value;
+  const item = document.getElementById('a-item').value;
+  if(!qty || qty<1) { showToast('Enter a quantity!','warn'); return; }
+  const itm = inventory.find(i=>i.name===item||item.startsWith(i.name.split(' ')[0]));
+  if(itm) { const key = zone.includes('A')?'a':zone.includes('B')?'b':zone.includes('C')?'c':'d'; itm[key]+=qty; }
+  renderTable(); renderStats();
+  document.getElementById('a-qty').value='';
+  showToast(`✅ ${qty} ${item} added to ${zone}!`);
+}
+
+function quickDispatch(name) {
+  document.getElementById('d-item').value = name;
+  showToast(`Select quantity and zones in the Dispatch panel →`,'warn');
+}
+
+function openAddModal()      { document.getElementById('addModal').classList.add('open'); }
+function openDispatchModal() { showToast('Fill in the Quick Dispatch form on the right ➡','warn'); }
+function closeModal(id)      { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+function bulkAdd() {
+  const qty  = parseInt(document.getElementById('bulk-qty').value);
+  const zone = document.getElementById('bulk-zone').value;
+  const item = document.getElementById('bulk-item').value;
+  const src  = document.getElementById('bulk-src').value || 'Unknown';
+  if(!qty) { showToast('Enter quantity!','warn'); return; }
+  history.unshift({ icon:'➕', bg:'rgba(255,186,8,.1)', title:`${qty} ${item} added`, sub:`${zone.split(' — ')[0]} · Donor: ${src}`, time:'just now' });
+  renderHistory(); renderStats();
+  closeModal('addModal');
+  showToast(`✅ ${qty} ${item} added from ${src}!`);
+}
+
+function exportInventory() {
+  const rows=[['Item','Zone A','Zone B','Zone C','Zone D','Total']];
+  inventory.forEach(i=>rows.push([i.name,i.a,i.b,i.c,i.d,i.a+i.b+i.c+i.d]));
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}));
+  a.download='aidconnect_inventory.csv'; a.click();
+  showToast('📥 Inventory exported!');
+}
+
+function showToast(msg, type='success') {
+  const t=document.getElementById('toast');
+  t.className=`toast ${type==='success'?'':type}`;
+  t.innerHTML=`${type==='danger'?'🚨':type==='warn'?'⚡':'✅'} <span>${msg}</span>`;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+/* ── INIT ── */
+window.addEventListener('load', async () => {
+  try {
+    const res = await window.AidConnect.InventoryAPI.getAll();
+    if (res && res.inventory) {
+      inventory = [];
+      const emojis = { 'food': '🍱', 'medical': '💊', 'shelter': '⛺', 'clothing': '👕', 'water': '💧', 'equipment': '🛠️', 'other': '📦' };
+      res.inventory.forEach(inv => {
+        let item = inventory.find(i => i.name === inv.resource);
+        if (!item) {
+          item = { emoji: emojis[inv.category] || '📦', name: inv.resource, a:0, b:0, c:0, d:0, threshold: inv.minThreshold || 50, _id: inv._id };
+          inventory.push(item);
+        }
+        if (inv.zone.includes('A')) item.a += inv.quantity;
+        else if (inv.zone.includes('B')) item.b += inv.quantity;
+        else if (inv.zone.includes('C')) item.c += inv.quantity;
+        else if (inv.zone.includes('D')) item.d += inv.quantity;
+      });
+    }
+  } catch(e) {
+    console.error('Failed to load inventory', e);
+  }
+
+  renderStats();
+  renderZoneCards();
+  renderTable();
+  initChart();
+  renderHistory();
+  setTimeout(()=>showToast('⚠️ Zone C Jabalpur: Food Packets critically low','warn'),1500);
+});
+</script>
+</body>
+</html>

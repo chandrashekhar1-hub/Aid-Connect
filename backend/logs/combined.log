@@ -1,0 +1,88 @@
+[2026-04-18T08:53:46.281Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-18T08:53:51.400Z] [31merror[39m: ❌ MongoDB connection error: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-04-18T08:57:49.375Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-18T08:57:54.419Z] [31merror[39m: ❌ MongoDB connection error: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-04-18T13:31:30.526Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-18T13:31:35.535Z] [31merror[39m: ❌ MongoDB connection error: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-04-18T14:16:52.740Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-18T14:16:52.764Z] [32minfo[39m: ✅ MongoDB connected
+[2026-04-18T14:39:06.699Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-18T14:39:06.733Z] [32minfo[39m: ✅ MongoDB connected
+[2026-04-18T14:39:30.678Z] [32minfo[39m: Login: admin@aidconnect.org
+[2026-04-18T15:50:49.998Z] [32minfo[39m: User registered: test1@email.com as volunteer
+[2026-04-18T15:51:14.550Z] [32minfo[39m: Login: admin@aidconnect.org
+[2026-04-20T14:19:43.963Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-20T14:19:48.955Z] [31merror[39m: ❌ MongoDB connection error: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-04-24T16:26:09.399Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-24T16:26:14.366Z] [31merror[39m: ❌ MongoDB connection error: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-04-24T16:50:13.062Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-24T16:50:18.060Z] [31merror[39m: ❌ MongoDB connection error: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-04-25T09:15:06.141Z] [32minfo[39m: 
+  ╔═══════════════════════════════════════╗
+  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   Port  : 5000                        ║
+  ║   Mode  : development                ║
+  ║   Health: http://localhost:5000/api/health ║
+  ╚═══════════════════════════════════════╝
+  
+[2026-04-25T09:15:07.427Z] [32minfo[39m: ✅ MongoDB connected
+[2026-04-25T09:33:10.974Z] [32minfo[39m: Login: admin@aidconnect.org
+[2026-04-25T09:33:42.760Z] [33mwarn[39m: 🆘 SOS from Admin User at [0, 0]
+[2026-04-25T09:33:49.135Z] [33mwarn[39m: 🆘 SOS from Admin User at [0, 0]
+[2026-04-25T09:35:19.049Z] [32minfo[39m: Report created: R-2026-7838 by admin@aidconnect.org

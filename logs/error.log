@@ -1,0 +1,2 @@
+[2026-04-18T09:56:15.413Z] [31merror[39m: ❌ MongoDB connection error: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-04-18T10:05:10.160Z] [31merror[39m: ❌ MongoDB connection error: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017

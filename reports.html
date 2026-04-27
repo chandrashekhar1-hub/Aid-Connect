@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Crisis Reports — AidConnect</title>
+  <meta name="description" content="All crisis reports across India. Filter, manage and track reports in real-time. AidConnect NGO."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --primary:#E85D04;--primary-dk:#C44B00;--yellow:#FFBA08;--teal:#2EC4B6;
+      --navy:#0D1B2A;--navy-lt:#162435;--dark:#1A1A2E;--gray:#6B7280;
+      --gray-lt:#F3F4F6;--white:#fff;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;
+      --border:#E5E7EB;--shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 8px 40px rgba(0,0,0,.14);
+      --radius:14px;--radius-sm:8px;--transition:all .25s cubic-bezier(.4,0,.2,1);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--gray-lt);color:var(--dark);}
+    a{text-decoration:none;color:inherit;}
+    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px;}
+
+    /* ── NAVBAR ── */
+    .navbar{background:var(--navy);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .nav-brand{display:flex;align-items:center;gap:10px;}
+    .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--yellow));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .brand-name{font-family:'Playfair Display',serif;font-size:19px;font-weight:800;color:#fff;}
+    .brand-name span{color:var(--primary);}
+    .nav-links{display:flex;gap:4px;}
+    .nav-link{padding:7px 14px;border-radius:50px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);transition:var(--transition);}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,.1);color:#fff;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .btn-nav{padding:8px 18px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:var(--transition);}
+    .btn-primary{background:var(--primary);color:#fff;}
+    .btn-primary:hover{background:var(--primary-dk);}
+    .btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);}
+    .btn-ghost:hover{background:rgba(255,255,255,.15);color:#fff;}
+
+    /* ── PAGE HEADER ── */
+    .page-header{background:linear-gradient(135deg,var(--navy) 0%,#1A3050 100%);color:#fff;padding:40px 0 0;}
+    .container{max-width:1320px;margin:0 auto;padding:0 28px;}
+    .ph-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px;}
+    .ph-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;margin-bottom:4px;}
+    .ph-sub{font-size:14px;color:rgba(255,255,255,.55);}
+    .ph-actions{display:flex;gap:10px;align-items:center;}
+    .btn-export{padding:9px 20px;border-radius:50px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:var(--transition);display:flex;align-items:center;gap:6px;}
+    .btn-export:hover{background:rgba(255,255,255,.2);}
+    .btn-new-report{padding:9px 22px;border-radius:50px;background:var(--primary);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);display:flex;align-items:center;gap:6px;}
+    .btn-new-report:hover{background:var(--primary-dk);transform:translateY(-1px);}
+
+    /* STAT STRIP */
+    .stat-strip{display:flex;gap:0;background:rgba(255,255,255,.06);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden;}
+    .strip-stat{flex:1;padding:18px 22px;border-right:1px solid rgba(255,255,255,.07);text-align:center;}
+    .strip-stat:last-child{border-right:none;}
+    .ss-num{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;}
+    .ss-lbl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+
+    /* ── FILTERS BAR ── */
+    .filters-bar{background:#fff;border-bottom:1px solid var(--border);padding:14px 0;position:sticky;top:64px;z-index:90;}
+    .filters-inner{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+    .search-wrap{position:relative;flex:1;min-width:260px;}
+    .search-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--gray);}
+    .search-input{width:100%;padding:10px 14px 10px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;transition:var(--transition);}
+    .search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(232,93,4,.1);}
+    .filter-sel{padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;background:#fff;cursor:pointer;}
+    .filter-sel:focus{border-color:var(--primary);}
+    .sort-chips{display:flex;gap:5px;}
+    .chip{padding:7px 14px;border-radius:50px;font-size:12px;font-weight:600;border:1.5px solid var(--border);color:var(--gray);cursor:pointer;transition:var(--transition);background:#fff;}
+    .chip.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .chip:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+
+    /* ── CONTENT GRID ── */
+    .content{padding:24px 0 60px;}
+    .content-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;}
+
+    /* ── REPORTS PANEL ── */
+    .reports-panel{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .panel-head{padding:18px 22px;border-bottom:1px solid #F0F0F0;display:flex;justify-content:space-between;align-items:center;}
+    .panel-title{font-size:15px;font-weight:700;color:var(--dark);}
+    .view-toggle{display:flex;gap:3px;}
+    .vt-btn{padding:6px 12px;border-radius:7px;font-size:12px;font-weight:600;background:var(--gray-lt);color:var(--gray);border:none;cursor:pointer;transition:var(--transition);font-family:inherit;}
+    .vt-btn.active{background:var(--primary);color:#fff;}
+
+    /* TABLE */
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #F0F0F0;background:#FAFAFA;white-space:nowrap;}
+    tbody tr{transition:var(--transition);cursor:pointer;}
+    tbody tr:hover td{background:#FFF7ED;}
+    tbody td{padding:14px 16px;font-size:13px;border-bottom:1px solid #F8F8F8;vertical-align:middle;}
+    tbody tr:last-child td{border-bottom:none;}
+    .td-main{font-weight:700;color:var(--dark);}
+    .td-sub{font-size:11px;color:var(--gray);margin-top:2px;}
+
+    /* GRID VIEW */
+    .reports-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding:16px;}
+    .rpt-card{border-radius:var(--radius-sm);border:1.5px solid var(--border);padding:18px;cursor:pointer;transition:var(--transition);}
+    .rpt-card:hover{border-color:var(--primary);box-shadow:var(--shadow);}
+    .rc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .rc-id{font-size:11px;font-weight:700;color:var(--gray);}
+    .rc-title{font-size:14px;font-weight:700;color:var(--dark);line-height:1.35;margin-bottom:6px;}
+    .rc-desc{font-size:12px;color:var(--gray);line-height:1.5;margin-bottom:12px;}
+    .rc-foot{display:flex;justify-content:space-between;align-items:center;}
+
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;}
+    .b-critical{background:#FEE2E2;color:#DC2626;}
+    .b-high{background:#FEF3C7;color:#D97706;}
+    .b-medium{background:#CCFBF1;color:#0D9488;}
+    .b-low{background:#DCFCE7;color:#16A34A;}
+    .b-open{background:#EFF6FF;color:#2563EB;}
+    .b-in_progress,.b-inprogress{background:#F0FDF4;color:#15803D;}
+    .b-assigned{background:#FFF7ED;color:#C2410C;}
+    .b-resolved{background:#F1F5F9;color:#475569;}
+    .b-escalated{background:#FEE2E2;color:#B91C1C;}
+    .b-flood{background:rgba(59,130,246,.1);color:#1D4ED8;}
+    .b-medical{background:rgba(239,68,68,.1);color:#B91C1C;}
+    .b-food{background:rgba(245,158,11,.1);color:#92400E;}
+    .b-shelter{background:rgba(46,196,182,.1);color:#0F766E;}
+    .b-infrastructure,.b-infra{background:rgba(139,92,246,.1);color:#6D28D9;}
+    .b-fire{background:rgba(239,100,30,.1);color:#C2410C;}
+    .b-earthquake{background:rgba(107,114,128,.1);color:#374151;}
+    .b-other{background:rgba(107,114,128,.1);color:#374151;}
+
+    /* ACTION BUTTONS */
+    .act-btn{padding:5px 13px;border-radius:50px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .act-assign{background:rgba(232,93,4,.1);color:var(--primary);}
+    .act-assign:hover{background:var(--primary);color:#fff;}
+    .act-view{background:rgba(59,130,246,.1);color:var(--blue);}
+    .act-view:hover{background:var(--blue);color:#fff;}
+    .act-update{background:rgba(34,197,94,.1);color:var(--green);}
+    .act-update:hover{background:var(--green);color:#fff;}
+    .act-archive{background:var(--gray-lt);color:var(--gray);}
+
+    /* PAGINATION */
+    .pagination{display:flex;justify-content:center;gap:6px;padding:18px;}
+    .pg-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:1.5px solid var(--border);cursor:pointer;background:#fff;color:var(--gray);transition:var(--transition);}
+    .pg-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .pg-btn:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+
+    /* ── RIGHT SIDEBAR ── */
+    .right-sidebar{display:flex;flex-direction:column;gap:16px;}
+    .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .card-title{font-size:14px;font-weight:700;color:var(--dark);}
+    .card-body{padding:18px 20px;}
+
+    /* CAT BREAKDOWN */
+    .cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .cat-label{font-size:12px;font-weight:600;color:var(--dark);min-width:80px;}
+    .cat-bar{flex:1;height:6px;background:#F0F0F0;border-radius:50px;overflow:hidden;}
+    .cat-fill{height:100%;border-radius:50px;background:var(--primary);}
+    .cat-count{font-size:12px;font-weight:700;color:var(--dark);min-width:20px;text-align:right;}
+
+    /* SEV BREAKDOWN */
+    .sev-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+    .sev-dot-l{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .sev-label{font-size:12px;color:var(--dark);flex:1;}
+    .sev-count{font-size:12px;font-weight:700;color:var(--dark);}
+    .sev-pct{font-size:11px;color:var(--gray);min-width:30px;text-align:right;}
+
+    /* ACTIVITY FEED */
+    .act-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .act-item:last-child{border-bottom:none;}
+    .act-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+    .act-text{font-size:12px;font-weight:600;color:var(--dark);}
+    .act-time{font-size:11px;color:var(--gray);margin-top:1px;}
+
+    /* ── DETAIL MODAL ── */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+    .overlay.open{display:flex;}
+    .modal{background:#fff;border-radius:20px;width:92%;max-width:580px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.25);animation:mIn .3s ease;}
+    @keyframes mIn{from{opacity:0;transform:scale(.92) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);}}
+    .modal-head{padding:24px 28px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+    .modal-id{font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;}
+    .modal-title{font-size:20px;font-weight:800;color:var(--dark);}
+    .modal-x{width:34px;height:34px;border-radius:50%;background:var(--gray-lt);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:var(--transition);flex-shrink:0;}
+    .modal-x:hover{background:var(--red);color:#fff;}
+    .modal-body{padding:24px 28px;}
+    .modal-sec-title{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+    .info-item{background:var(--gray-lt);border-radius:8px;padding:12px;}
+    .info-label{font-size:11px;color:var(--gray);margin-bottom:3px;}
+    .info-value{font-size:13px;font-weight:700;color:var(--dark);}
+    .modal-foot{padding:18px 28px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);flex-wrap:wrap;}
+    .modal-btn{padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:var(--transition);}
+    .modal-btn-primary{background:var(--primary);color:#fff;}
+    .modal-btn-primary:hover{background:var(--primary-dk);}
+    .modal-btn-outline{background:none;border:1.5px solid var(--border);color:var(--dark);}
+    .modal-btn-outline:hover{border-color:var(--primary);color:var(--primary);}
+    .modal-btn-danger{background:var(--gray-lt);color:var(--gray);}
+
+    /* NEW REPORT MODAL FORM */
+    .form-group{margin-bottom:15px;}
+    .form-label{display:block;font-size:13px;font-weight:600;color:var(--dark);margin-bottom:5px;}
+    .form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;transition:var(--transition);}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(232,93,4,.1);}
+    .form-textarea{min-height:80px;resize:vertical;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .sev-btns{display:flex;gap:8px;flex-wrap:wrap;}
+    .sev-btn{padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit;}
+    .sev-btn.sel{border-color:var(--primary);background:rgba(232,93,4,.08);color:var(--primary);}
+    .sev-btn:hover:not(.sel){border-color:var(--primary);}
+
+    /* TOAST */
+    .toast{position:fixed;top:80px;right:24px;z-index:9999;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;transform:translateX(110%);transition:transform .4s;background:var(--green);}
+    .toast.show{transform:translateX(0);}
+    .toast.error{background:var(--red);}
+    .toast.warn{background:var(--primary);}
+
+    /* PROGRESS BAR */
+    .progress-bar{height:8px;background:#F0F0F0;border-radius:50px;overflow:hidden;margin-top:8px;}
+    .progress-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--primary),var(--yellow));}
+
+    @media(max-width:1100px){.content-grid{grid-template-columns:1fr;}}
+    @media(max-width:768px){.nav-links,.sort-chips{display:none;}.filter-sel{display:none;}.reports-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="brand-icon">🌿</div>
+    <div class="brand-name">Aid<span>Connect</span></div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link active" href="reports.html">Reports</a>
+    <a class="nav-link" href="map.html">Crisis Map</a>
+    <a class="nav-link" href="volunteer.html">Volunteers</a>
+    <a class="nav-link" href="inventory.html">Inventory</a>
+    <a class="nav-link" href="donors.html">Donors</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-nav btn-primary" onclick="openNewReport()">+ New Report</button>
+    <a href="login.html" class="btn-nav btn-ghost">Login</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <div class="ph-top">
+      <div>
+        <div class="ph-title">Crisis Reports 📋</div>
+        <div class="ph-sub">All reports filed across India · Last updated: <span id="last-update">just now</span></div>
+      </div>
+      <div class="ph-actions">
+        <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn-new-report" onclick="openNewReport()">+ New Report</button>
+      </div>
+    </div>
+    <div class="stat-strip">
+      <div class="strip-stat"><div class="ss-num" id="stat-total">0</div><div class="ss-lbl">Total Reports</div></div>
+      <div class="strip-stat"><div class="ss-num" style="color:#EF4444" id="stat-open">0</div><div class="ss-lbl">Open</div></div>
+      <div class="strip-stat"><div class="ss-num" style="color:#FFBA08" id="stat-inprogress">0</div><div class="ss-lbl">In Progress</div></div>
+      <div class="strip-stat"><div class="ss-num" style="color:#22C55E" id="stat-resolved">0</div><div class="ss-lbl">Resolved</div></div>
+      <div class="strip-stat"><div class="ss-num" style="color:#EF4444" id="stat-critical">0</div><div class="ss-lbl">Critical</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters-bar">
+  <div class="container">
+    <div class="filters-inner">
+      <div class="search-wrap">
+        <span class="search-ico">🔍</span>
+        <input class="search-input" id="search-input" type="text" placeholder="Search reports, cities, categories..." oninput="filterReports()"/>
+      </div>
+      <select class="filter-sel" id="filter-status" onchange="filterReports()">
+        <option value="">All Status</option>
+        <option value="open">Open</option>
+        <option value="in_progress">In Progress</option>
+        <option value="assigned">Assigned</option>
+        <option value="escalated">Escalated</option>
+        <option value="resolved">Resolved</option>
+      </select>
+      <select class="filter-sel" id="filter-sev" onchange="filterReports()">
+        <option value="">All Severity</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <select class="filter-sel" id="filter-cat" onchange="filterReports()">
+        <option value="">All Categories</option>
+        <option value="flood">Flood</option>
+        <option value="medical">Medical</option>
+        <option value="food">Food</option>
+        <option value="shelter">Shelter</option>
+        <option value="infrastructure">Infrastructure</option>
+        <option value="fire">Fire</option>
+        <option value="earthquake">Earthquake</option>
+      </select>
+      <div class="sort-chips">
+        <div class="chip active" onclick="setSort('date',this)" id="chip-date">Latest</div>
+        <div class="chip" onclick="setSort('severity',this)">By Severity</div>
+        <div class="chip" onclick="setSort('impact',this)">By Impact</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="container">
+    <div class="content-grid">
+
+      <!-- REPORTS LIST -->
+      <div>
+        <div class="reports-panel">
+          <div class="panel-head">
+            <div class="panel-title" id="panel-count">All Reports</div>
+            <div class="view-toggle">
+              <button class="vt-btn active" id="vt-table" onclick="setView('table',this)">☰ Table</button>
+              <button class="vt-btn" id="vt-grid" onclick="setView('grid',this)">⊞ Grid</button>
+            </div>
+          </div>
+
+          <!-- TABLE VIEW -->
+          <div id="table-view">
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Report ID</th><th>Report</th><th>Category</th>
+                    <th>Severity</th><th>Status</th><th>People</th><th>Location</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- GRID VIEW -->
+          <div id="grid-view" style="display:none;">
+            <div class="reports-grid" id="grid-body"></div>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <div class="right-sidebar">
+
+        <!-- BY CATEGORY -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">📊 By Category</div></div>
+          <div class="card-body" id="cat-breakdown"></div>
+        </div>
+
+        <!-- SEVERITY BREAKDOWN -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">🔴 Severity Breakdown</div></div>
+          <div class="card-body" id="sev-legend"></div>
+        </div>
+
+        <!-- RECENT ACTIVITY -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">⚡ Recent Activity</div></div>
+          <div class="card-body" id="activity-feed"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detail-modal">
+  <div class="modal" id="detail-modal-content-wrap">
+    <div id="detail-modal-content"></div>
+  </div>
+</div>
+
+<!-- NEW REPORT MODAL -->
+<div class="overlay" id="new-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-id">NEW REPORT</div>
+        <div class="modal-title">📋 File Crisis Report</div>
+      </div>
+      <button class="modal-x" onclick="closeNewReport()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="new-report-form" onsubmit="submitReport(event)">
+        <div class="form-group">
+          <label class="form-label">Report Title *</label>
+          <input class="form-input" type="text" id="nr-title" placeholder="e.g. Severe Flooding — Napier Town" required/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select class="form-select" id="nr-cat" required>
+              <option value="">Select...</option>
+              <option value="flood">🌊 Flood</option>
+              <option value="medical">🏥 Medical</option>
+              <option value="food">🍱 Food Shortage</option>
+              <option value="shelter">🏠 Shelter</option>
+              <option value="infrastructure">🏗️ Infrastructure</option>
+              <option value="fire">🔥 Fire</option>
+              <option value="earthquake">🌍 Earthquake</option>
+              <option value="other">⚠️ Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">People Affected</label>
+            <input class="form-input" type="number" id="nr-people" placeholder="e.g. 150" min="0"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Severity *</label>
+          <div class="sev-btns" id="sev-btns">
+            <button type="button" class="sev-btn" data-sev="low" onclick="selectSev(this)">🟢 Low</button>
+            <button type="button" class="sev-btn" data-sev="medium" onclick="selectSev(this)">🔵 Medium</button>
+            <button type="button" class="sev-btn" data-sev="high" onclick="selectSev(this)">🟠 High</button>
+            <button type="button" class="sev-btn" data-sev="critical" onclick="selectSev(this)">🔴 Critical</button>
+          </div>
+          <input type="hidden" id="nr-sev"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City *</label>
+            <input class="form-input" type="text" id="nr-city" placeholder="e.g. Jabalpur" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">State</label>
+            <input class="form-input" type="text" id="nr-state" placeholder="e.g. Madhya Pradesh"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea class="form-textarea" id="nr-desc" placeholder="Describe the situation in detail..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input class="form-input" type="text" id="nr-name" placeholder="Filed by..."/>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn modal-btn-primary" onclick="submitReport(event)">Submit Report 📋</button>
+      <button class="modal-btn modal-btn-outline" onclick="closeNewReport()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   DEMO DATA
+══════════════════════════════════════════ */
+let demoReports = [];
+
+let filteredReports = [...demoReports];
+let currentSort = 'date';
+let currentView = 'table';
+let currentPage = 1;
+const PAGE_SIZE = 7;
+let selectedSev = '';
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await window.AidConnect.ReportsAPI.getAll();
+    if (res && res.reports) {
+      demoReports = res.reports.map(r => ({
+        id: r.reportId || r._id,
+        _id: r._id,
+        title: r.title,
+        category: r.category,
+        severity: r.severity,
+        status: r.status,
+        city: r.location?.city || '—',
+        state: r.location?.state || '—',
+        peopleAffected: r.peopleAffected || 0,
+        volunteers: r.assignedVolunteers ? r.assignedVolunteers.length : 0,
+        filedBy: r.filedBy?.name || 'System',
+        filedVia: r.filedVia || 'web',
+        createdAt: r.createdAt,
+        desc: r.description || ''
+      }));
+      filteredReports = [...demoReports];
+    }
+  } catch(e) {
+    console.error('Failed to load reports', e);
+  }
+  
+  renderStats();
+  filterReports();
+  renderBreakdown();
+  renderActivity();
+  updateTimestamp();
+  setInterval(updateTimestamp, 30000);
+});
+
+/* ══════════════════════════════════════════
+   STATS
+══════════════════════════════════════════ */
+function renderStats() {
+  animCount('stat-total',    demoReports.length);
+  animCount('stat-open',     demoReports.filter(r => r.status === 'open').length);
+  animCount('stat-inprogress', demoReports.filter(r => ['in_progress','assigned','escalated'].includes(r.status)).length);
+  animCount('stat-resolved', demoReports.filter(r => r.status === 'resolved').length);
+  animCount('stat-critical', demoReports.filter(r => r.severity === 'critical').length);
+}
+
+function animCount(id, val, dur=1200) {
+  const el = document.getElementById(id); if(!el) return;
+  let cur=0; const step=val/(dur/16);
+  const t=setInterval(()=>{cur=Math.min(cur+step,val); el.textContent=Math.floor(cur); if(cur>=val)clearInterval(t);},16);
+}
+
+/* ══════════════════════════════════════════
+   FILTER & SORT
+══════════════════════════════════════════ */
+function filterReports() {
+  const q    = document.getElementById('search-input').value.trim().toLowerCase();
+  const stat = document.getElementById('filter-status').value;
+  const sev  = document.getElementById('filter-sev').value;
+  const cat  = document.getElementById('filter-cat').value;
+
+  filteredReports = demoReports.filter(r => {
+    const mQ   = !q   || r.title.toLowerCase().includes(q) || r.city.toLowerCase().includes(q) || r.category.includes(q) || r.id.toLowerCase().includes(q);
+    const mSt  = !stat || r.status === stat;
+    const mSev = !sev  || r.severity === sev;
+    const mCat = !cat  || r.category === cat;
+    return mQ && mSt && mSev && mCat;
+  });
+
+  sortReports();
+  currentPage = 1;
+  renderReports();
+  document.getElementById('panel-count').textContent = `${filteredReports.length} Report${filteredReports.length!==1?'s':''}`;
+}
+
+function sortReports() {
+  const sevOrder = { critical:0, high:1, medium:2, low:3 };
+  if (currentSort === 'date')     filteredReports.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt));
+  if (currentSort === 'severity') filteredReports.sort((a,b) => sevOrder[a.severity]-sevOrder[b.severity]);
+  if (currentSort === 'impact')   filteredReports.sort((a,b) => b.peopleAffected-a.peopleAffected);
+}
+
+function setSort(s, btn) {
+  currentSort = s;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  sortReports(); currentPage=1; renderReports();
+}
+
+/* ══════════════════════════════════════════
+   RENDER TABLE / GRID
+══════════════════════════════════════════ */
+function renderReports() {
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page  = filteredReports.slice(start, start+PAGE_SIZE);
+
+  if (currentView === 'table') renderTable(page);
+  else renderGrid(page);
+  renderPagination();
+}
+
+function renderTable(reports) {
+  const tbody = document.getElementById('table-body');
+  if (!reports.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--gray);font-size:14px;">No reports match your filters</td></tr>`;
+    return;
+  }
+  const catEmoji = { flood:'🌊', medical:'🏥', food:'🍱', shelter:'🏠', infrastructure:'🏗️', fire:'🔥', earthquake:'🌍', other:'⚠️' };
+  tbody.innerHTML = reports.map(r => {
+    const statusLabel = r.status.replace(/_/g,' ');
+    const actionBtns = r.status === 'resolved'
+      ? `<button class="act-btn act-archive">Archive</button>`
+      : r.status === 'open'
+        ? `<button class="act-btn act-assign" onclick="showToast('Assigning volunteers to ${r.id}...')">Assign</button>`
+        : `<button class="act-btn act-view" onclick="openDetail('${r.id}')">View</button>`;
+    return `
+      <tr onclick="openDetail('${r.id}')">
+        <td style="font-size:11px;font-weight:700;color:var(--gray);">${r.id}</td>
+        <td>
+          <div class="td-main">${r.title}</div>
+          <div class="td-sub">Filed ${timeAgo(r.createdAt)} · by ${r.filedBy}</div>
+        </td>
+        <td><span class="badge b-${r.category}">${catEmoji[r.category]||'⚠️'} ${cap(r.category)}</span></td>
+        <td><span class="badge b-${r.severity}">● ${cap(r.severity)}</span></td>
+        <td><span class="badge b-${r.status.replace('_','')}">${statusLabel}</span></td>
+        <td>${r.peopleAffected ? `<strong>${r.peopleAffected.toLocaleString('en-IN')}</strong>` : '—'}</td>
+        <td>
+          <div class="td-main">${r.city}</div>
+          <div class="td-sub">${r.state}</div>
+        </td>
+        <td onclick="event.stopPropagation()">${actionBtns}</td>
+      </tr>`;
+  }).join('');
+}
+
+function renderGrid(reports) {
+  const grid = document.getElementById('grid-body');
+  if (!reports.length) { grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--gray);">No reports match your filters</div>`; return; }
+  const catEmoji = { flood:'🌊', medical:'🏥', food:'🍱', shelter:'🏠', infrastructure:'🏗️', fire:'🔥', earthquake:'🌍', other:'⚠️' };
+  grid.innerHTML = reports.map(r => `
+    <div class="rpt-card" onclick="openDetail('${r.id}')">
+      <div class="rc-head">
+        <span class="rc-id">${r.id}</span>
+        <span class="badge b-${r.severity}">● ${cap(r.severity)}</span>
+      </div>
+      <div style="margin-bottom:6px;"><span class="badge b-${r.category}">${catEmoji[r.category]||'⚠️'} ${cap(r.category)}</span></div>
+      <div class="rc-title">${r.title}</div>
+      <div class="rc-desc">${r.desc.substring(0,110)}...</div>
+      <div class="rc-foot">
+        <span class="badge b-${r.status.replace('_','')}">${r.status.replace(/_/g,' ')}</span>
+        <span style="font-size:11px;color:var(--gray);">📍 ${r.city} · ${timeAgo(r.createdAt)}</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════
+   PAGINATION
+══════════════════════════════════════════ */
+function renderPagination() {
+  const total = Math.ceil(filteredReports.length / PAGE_SIZE);
+  if (total <= 1) { document.getElementById('pagination').innerHTML=''; return; }
+  let html = '';
+  for(let i=1;i<=total;i++) html += `<div class="pg-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</div>`;
+  document.getElementById('pagination').innerHTML = html;
+}
+function goPage(p) { currentPage=p; renderReports(); window.scrollTo({top:300,behavior:'smooth'}); }
+
+/* ══════════════════════════════════════════
+   VIEW TOGGLE
+══════════════════════════════════════════ */
+function setView(view, btn) {
+  currentView = view;
+  document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('table-view').style.display = view==='table'?'block':'none';
+  document.getElementById('grid-view').style.display  = view==='grid' ?'block':'none';
+  renderReports();
+}
+
+/* ══════════════════════════════════════════
+   BREAKDOWNS
+══════════════════════════════════════════ */
+function renderBreakdown() {
+  const cats = ['flood','medical','food','shelter','infrastructure','fire','earthquake','other'];
+  const emoji = {flood:'🌊',medical:'🏥',food:'🍱',shelter:'🏠',infrastructure:'🏗️',fire:'🔥',earthquake:'🌍',other:'⚠️'};
+  const counts = cats.map(c => ({ cat:c, n: demoReports.filter(r=>r.category===c).length })).filter(x=>x.n>0);
+  const max = Math.max(...counts.map(x=>x.n));
+  document.getElementById('cat-breakdown').innerHTML = counts.map(({cat,n}) => `
+    <div class="cat-row">
+      <span class="cat-label">${emoji[cat]} ${cap(cat)}</span>
+      <div class="cat-bar"><div class="cat-fill" style="width:${(n/max)*100}%"></div></div>
+      <span class="cat-count">${n}</span>
+    </div>`).join('');
+
+  const sev = [{k:'critical',label:'Critical',color:'#EF4444'},{k:'high',label:'High',color:'#F59E0B'},{k:'medium',label:'Medium',color:'#2EC4B6'},{k:'low',label:'Low',color:'#22C55E'}];
+  document.getElementById('sev-legend').innerHTML = sev.map(s => {
+    const n = demoReports.filter(r=>r.severity===s.k).length;
+    const pct = Math.round((n/demoReports.length)*100);
+    return `<div class="sev-row"><div class="sev-dot-l" style="background:${s.color}"></div><span class="sev-label">${s.label}</span><span class="sev-count">${n}</span><span class="sev-pct">${pct}%</span></div>`;
+  }).join('');
+}
+
+function renderActivity() {
+  const acts = [
+    { icon:'✅', bg:'rgba(34,197,94,.12)', text:'R-2026-1421 marked Resolved', time:'2m ago' },
+    { icon:'👤', bg:'rgba(59,130,246,.12)', text:'Volunteer assigned to R-2026-1427', time:'8m ago' },
+    { icon:'🆕', bg:'rgba(232,93,4,.12)', text:'New SMS report — Forest Fire', time:'15m ago' },
+    { icon:'⚠️', bg:'rgba(239,68,68,.12)', text:'R-2026-1424 escalated to Level 2', time:'22m ago' },
+    { icon:'📦', bg:'rgba(46,196,182,.12)', text:'Resources dispatched to Jabalpur', time:'35m ago' },
+  ];
+  document.getElementById('activity-feed').innerHTML = acts.map(a => `
+    <div class="act-item">
+      <div class="act-ic" style="background:${a.bg}">${a.icon}</div>
+      <div>
+        <div class="act-text">${a.text}</div>
+        <div class="act-time">${a.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════
+   DETAIL MODAL
+══════════════════════════════════════════ */
+function openDetail(id) {
+  const r = demoReports.find(x=>x.id===id); if(!r) return;
+  const catEmoji = {flood:'🌊',medical:'🏥',food:'🍱',shelter:'🏠',infrastructure:'🏗️',fire:'🔥',earthquake:'🌍',other:'⚠️'};
+  document.getElementById('detail-modal-content').innerHTML = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-id">${r.id}</div>
+        <div class="modal-title">${r.title}</div>
+      </div>
+      <button class="modal-x" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+        <span class="badge b-${r.severity}">● ${cap(r.severity)}</span>
+        <span class="badge b-${r.status.replace('_','')}">  ${r.status.replace(/_/g,' ')}</span>
+        <span class="badge b-${r.category}">${catEmoji[r.category]||'⚠️'} ${r.category}</span>
+        <span class="badge" style="background:#F3F4F6;color:#374151;">📡 via ${r.filedVia}</span>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div class="modal-sec-title">Description</div>
+        <p style="font-size:14px;color:var(--gray);line-height:1.7;">${r.desc}</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><div class="info-label">Location</div><div class="info-value">📍 ${r.city}, ${r.state}</div></div>
+        <div class="info-item"><div class="info-label">People Affected</div><div class="info-value">👥 ${r.peopleAffected.toLocaleString('en-IN')}</div></div>
+        <div class="info-item"><div class="info-label">Filed By</div><div class="info-value">${r.filedBy}</div></div>
+        <div class="info-item"><div class="info-label">Filed At</div><div class="info-value">${new Date(r.createdAt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
+        <div class="info-item"><div class="info-label">Volunteers</div><div class="info-value">🙋 ${r.volunteers} assigned</div></div>
+        <div class="info-item"><div class="info-label">Via</div><div class="info-value">${r.filedVia.toUpperCase()}</div></div>
+      </div>
+      ${r.peopleAffected > 0 ? `
+      <div style="margin-bottom:16px;">
+        <div class="modal-sec-title">Impact Scale</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:${Math.min(r.peopleAffected/500*100,100)}%"></div></div>
+          <span style="font-size:14px;font-weight:700;color:var(--primary);">${r.peopleAffected} people</span>
+        </div>
+      </div>` : ''}
+    </div>
+    <div class="modal-foot">
+      ${r.status!=='resolved'?`
+        <button class="modal-btn modal-btn-primary" onclick="resolveReport('${r.id}');closeDetail()">✅ Mark Resolved</button>
+        <button class="modal-btn modal-btn-outline" onclick="document.getElementById('assign-vol-section').style.display='block'; fetchAndPopulateVols();">🙋 Assign Volunteer</button>
+      `:''}
+      <button class="modal-btn modal-btn-outline" onclick="window.open('map.html')">🗺️ View on Map</button>
+      <button class="modal-btn modal-btn-danger" onclick="closeDetail()">Close</button>
+    </div>
+    ${r.status!=='resolved'?`
+    <div id="assign-vol-section" style="display:none; padding: 15px 24px; border-top: 1px solid var(--border); background: var(--gray-lt); border-radius: 0 0 20px 20px;">
+      <div style="font-size:13px; font-weight:bold; margin-bottom: 8px;">Select Volunteer to Assign</div>
+      <div style="display:flex; gap:10px;">
+        <select id="assign-vol-select" class="form-input" style="flex:1;">
+          <option value="">Loading volunteers...</option>
+        </select>
+        <button class="modal-btn modal-btn-primary" onclick="assignVolunteerToReport('${r._id}', '${r.id}')">Assign</button>
+      </div>
+    </div>
+    `:''}
+    `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+async function fetchAndPopulateVols() {
+  const sel = document.getElementById('assign-vol-select');
+  if(!sel) return;
+  try {
+    const res = await window.AidConnect.VolunteersAPI.getAll();
+    if(res.volunteers) {
+      sel.innerHTML = res.volunteers.map(v => `<option value="${v._id}">${v.user?.name || 'Unknown'} (${v.skills?.join(', ') || 'General'})</option>`).join('');
+    } else {
+      sel.innerHTML = '<option value="">No volunteers found</option>';
+    }
+  } catch(e) { sel.innerHTML = '<option value="">Error loading</option>'; }
+}
+
+async function assignVolunteerToReport(reportDbId, displayId) {
+  const volId = document.getElementById('assign-vol-select').value;
+  if (!volId) return;
+  try {
+    await window.AidConnect.ReportsAPI.update(reportDbId, { assignedVolunteers: [volId] });
+    showToast(`✅ Volunteer assigned to ${displayId}!`);
+    const r = demoReports.find(x => x._id === reportDbId);
+    if (r) r.volunteers = 1;
+    filterReports();
+    closeDetail();
+  } catch (e) {
+    showToast('❌ Failed to assign', 'error');
+  }
+}
+function closeDetail() { document.getElementById('detail-modal').classList.remove('open'); }
+document.getElementById('detail-modal').addEventListener('click', e => { if(e.target===document.getElementById('detail-modal')) closeDetail(); });
+
+/* ══════════════════════════════════════════
+   NEW REPORT MODAL
+══════════════════════════════════════════ */
+function openNewReport() { document.getElementById('new-modal').classList.add('open'); }
+function closeNewReport() { document.getElementById('new-modal').classList.remove('open'); document.getElementById('new-report-form').reset(); selectedSev=''; document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('sel')); }
+document.getElementById('new-modal').addEventListener('click', e => { if(e.target===document.getElementById('new-modal')) closeNewReport(); });
+
+function selectSev(btn) {
+  document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  selectedSev = btn.dataset.sev;
+}
+
+async function submitReport(e) {
+  if(e) e.preventDefault();
+  const title  = document.getElementById('nr-title').value.trim();
+  const cat    = document.getElementById('nr-cat').value;
+  const city   = document.getElementById('nr-city').value.trim();
+  const state  = document.getElementById('nr-state').value.trim();
+  const desc   = document.getElementById('nr-desc').value.trim();
+  const people = parseInt(document.getElementById('nr-people').value)||0;
+  const sev    = selectedSev || 'medium';
+  if (!title||!cat||!city||!desc) { showToast('⚠️ Fill in all required fields!','error'); return; }
+  try {
+    // Geocode exact location using Nominatim (OpenStreetMap)
+    let lng = 78.5; let lat = 22.5; // Central India fallback
+    try {
+      const query = encodeURIComponent(`${city}, ${state || 'India'}`);
+      const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
+      const geoData = await geoRes.json();
+      if (geoData && geoData.length > 0) {
+        lat = parseFloat(geoData[0].lat);
+        lng = parseFloat(geoData[0].lon);
+      }
+    } catch(err) {
+      console.warn('Geocoding failed, using fallback coordinates');
+    }
+    
+    const data = {
+      title, description: desc, category: cat, severity: sev,
+      location: { 
+        city, 
+        state: state||'—',
+        geo: { type: 'Point', coordinates: [lng, lat] }
+      },
+      peopleAffected: people, filedVia: 'web'
+    };
+    const res = await window.AidConnect.ReportsAPI.create(data);
+    if (res && res.report) {
+      const r = res.report;
+      const newR = {
+        id: r.reportId || r._id, _id: r._id, title: r.title, category: r.category, severity: r.severity,
+        status: r.status, city: r.location?.city || '—', state: r.location?.state || '—',
+        peopleAffected: r.peopleAffected || 0, volunteers: 0, filedBy: 'You',
+        filedVia: r.filedVia, createdAt: r.createdAt, desc: r.description || ''
+      };
+      demoReports.unshift(newR);
+      closeNewReport();
+      renderStats(); renderBreakdown(); filterReports();
+      showToast(`✅ Report ${newR.id} filed successfully!`);
+    }
+  } catch (e) {
+    showToast('❌ Failed to file report', 'error');
+  }
+}
+
+/* ══════════════════════════════════════════
+   RESOLVE
+══════════════════════════════════════════ */
+async function resolveReport(id) {
+  const r = demoReports.find(x=>x.id===id);
+  if(r) {
+    try {
+      if(r._id) await window.AidConnect.ReportsAPI.update(r._id, { status: 'resolved' });
+      r.status='resolved'; 
+      filterReports(); 
+      renderStats(); 
+      showToast(`✅ ${id} marked as resolved!`); 
+    } catch(e) {
+      showToast('❌ Failed to resolve report', 'error');
+    }
+  }
+}
+
+/* ══════════════════════════════════════════
+   EXPORT CSV
+══════════════════════════════════════════ */
+function exportCSV() {
+  const rows = [['ID','Title','Category','Severity','Status','City','State','People','Filed By','Date']];
+  demoReports.forEach(r => rows.push([r.id,`"${r.title}"`,r.category,r.severity,r.status,r.city,r.state,r.peopleAffected,r.filedBy,r.createdAt]));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'aidconnect_reports.csv'; a.click();
+  showToast('📥 Exported as CSV!');
+}
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function cap(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
+function timeAgo(d) {
+  const s = Math.floor((Date.now()-new Date(d))/1000);
+  if(s<60)  return s+'s ago';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+function updateTimestamp() { document.getElementById('last-update').textContent = 'just now'; }
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  const ico = type==='error'?'⚠️':type==='warn'?'⚡':'✅';
+  t.className = `toast ${type==='success'?'':type}`;
+  t.innerHTML = `${ico} <span>${msg}</span>`;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>

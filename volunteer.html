@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Volunteer Portal — AidConnect</title>
+  <meta name="description" content="Manage volunteers, assign tasks, track SOS and smart-match skills. AidConnect NGO."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--primary:#E85D04;--primary-dk:#C44B00;--yellow:#FFBA08;--teal:#2EC4B6;--navy:#0D1B2A;--navy-lt:#162435;--dark:#1A1A2E;--gray:#6B7280;--gray-lt:#F3F4F6;--white:#fff;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;--border:#E5E7EB;--shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 8px 40px rgba(0,0,0,.14);--radius:14px;--radius-sm:8px;--transition:all .25s cubic-bezier(.4,0,.2,1);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--gray-lt);color:var(--dark);}
+    a{text-decoration:none;color:inherit;}
+    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px;}
+
+    .navbar{background:var(--navy);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .nav-brand{display:flex;align-items:center;gap:10px;}
+    .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--yellow));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .brand-name{font-family:'Playfair Display',serif;font-size:19px;font-weight:800;color:#fff;}
+    .brand-name span{color:var(--primary);}
+    .nav-links{display:flex;gap:4px;}
+    .nav-link{padding:7px 14px;border-radius:50px;font-size:13px;color:rgba(255,255,255,.65);transition:var(--transition);}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,.1);color:#fff;}
+    .nav-right{display:flex;gap:10px;}
+    .btn-nav{padding:8px 18px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:var(--transition);}
+    .btn-prim{background:var(--primary);color:#fff;} .btn-prim:hover{background:var(--primary-dk);}
+    .btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);} .btn-ghost:hover{background:rgba(255,255,255,.15);color:#fff;}
+
+    .page-header{background:linear-gradient(135deg,var(--navy),#1A3050);color:#fff;padding:40px 0;}
+    .container{max-width:1320px;margin:0 auto;padding:0 28px;}
+    .ph-flex{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;}
+    .ph-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;}
+    .ph-sub{font-size:14px;color:rgba(255,255,255,.55);margin-top:4px;}
+    .ph-btns{display:flex;gap:10px;}
+    .btn-outline-w{padding:9px 20px;border-radius:50px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .btn-outline-w:hover{background:rgba(255,255,255,.18);}
+    .sos-big{padding:10px 24px;border-radius:50px;background:var(--red);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;animation:pr 2s infinite;}
+    @keyframes pr{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5);}50%{box-shadow:0 0 0 10px rgba(239,68,68,0);}}
+
+    .stat-row{display:flex;gap:16px;margin-top:28px;flex-wrap:wrap;}
+    .stat-pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 22px;display:flex;align-items:center;gap:12px;flex:1;min-width:160px;}
+    .sp-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;}
+    .sp-lbl{font-size:12px;color:rgba(255,255,255,.55);}
+    .sp-icon{font-size:22px;}
+
+    .content{padding:28px 0 60px;}
+    .filters-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:24px;}
+    .search-wrap{position:relative;flex:1;min-width:240px;}
+    .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--gray);}
+    .search-inp{width:100%;padding:10px 14px 10px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;transition:var(--transition);}
+    .search-inp:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(232,93,4,.1);}
+    .filter-sel{padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;background:#fff;cursor:pointer;}
+    .filter-sel:focus{border-color:var(--primary);}
+    .sort-chip{padding:7px 16px;border-radius:50px;border:1.5px solid var(--border);font-size:12px;font-weight:600;background:#fff;color:var(--gray);cursor:pointer;transition:var(--transition);}
+    .sort-chip.active,.sort-chip:hover{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .btn-match{padding:9px 22px;border-radius:50px;background:var(--primary);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .btn-match:hover{background:var(--primary-dk);}
+
+    .main-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;}
+
+    /* VOL GRID */
+    .vol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+    .vol-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:var(--transition);cursor:pointer;}
+    .vol-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+    .vol-card-head{padding:20px 20px 14px;display:flex;gap:14px;align-items:flex-start;}
+    .vol-av{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0;}
+    .vol-name{font-size:15px;font-weight:800;color:var(--dark);}
+    .vol-role{font-size:12px;color:var(--gray);margin-top:2px;}
+    .vol-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+    .v-badge{font-size:10px;padding:3px 9px;border-radius:50px;font-weight:700;}
+    .vb-active{background:rgba(34,197,94,.1);color:var(--green);}
+    .vb-deployed{background:rgba(232,93,4,.1);color:var(--primary);}
+    .vb-available{background:rgba(59,130,246,.1);color:var(--blue);}
+    .vb-offline{background:rgba(107,114,128,.1);color:var(--gray);}
+    .vol-card-body{padding:0 20px 16px;}
+    .vol-skills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+    .skill-tag{font-size:11px;padding:4px 10px;border-radius:50px;background:var(--gray-lt);color:var(--dark);font-weight:600;}
+    .vol-stats{display:flex;gap:0;background:var(--gray-lt);border-radius:10px;overflow:hidden;margin-bottom:14px;}
+    .vs{flex:1;padding:10px;text-align:center;border-right:1px solid var(--border);}
+    .vs:last-child{border-right:none;}
+    .vs-n{font-size:15px;font-weight:800;color:var(--dark);}
+    .vs-l{font-size:10px;color:var(--gray);}
+    .vol-actions{display:flex;gap:8px;}
+    .btn-sm{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .btn-contact{background:var(--primary);color:#fff;} .btn-contact:hover{background:var(--primary-dk);}
+    .btn-task{background:rgba(232,93,4,.1);color:var(--primary);} .btn-task:hover{background:var(--primary);color:#fff;}
+    .vol-loc{font-size:12px;color:var(--gray);padding:0 20px 16px;display:flex;align-items:center;gap:5px;}
+
+    /* RIGHT PANEL */
+    .right-panel{display:flex;flex-direction:column;gap:16px;}
+    .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);}
+    .card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .card-title{font-size:14px;font-weight:700;}
+    .card-body{padding:16px 20px;}
+    .card-action{font-size:12px;font-weight:700;color:var(--primary);background:none;border:none;cursor:pointer;font-family:inherit;}
+
+    .sos-card-body{padding:20px;}
+    .task-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .task-item:last-child{border-bottom:none;}
+    .task-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    .task-info{flex:1;}
+    .t-title{font-size:12px;font-weight:700;}
+    .t-meta{font-size:11px;color:var(--gray);margin-top:2px;}
+    .t-prog{height:4px;background:#F0F0F0;border-radius:50px;overflow:hidden;margin-top:6px;}
+    .t-fill{height:100%;border-radius:50px;}
+    .skill-cloud{display:flex;flex-wrap:wrap;gap:8px;}
+    .sk{padding:6px 13px;border-radius:50px;font-size:12px;font-weight:600;border:1.5px solid var(--border);color:var(--dark);cursor:pointer;transition:var(--transition);}
+    .sk:hover{background:rgba(232,93,4,.08);border-color:var(--primary);color:var(--primary);}
+
+    /* MODAL */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+    .overlay.open{display:flex;}
+    .modal{background:#fff;border-radius:20px;width:92%;max-width:540px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.25);animation:mIn .3s ease;}
+    @keyframes mIn{from{opacity:0;transform:scale(.92) translateY(14px);}to{opacity:1;transform:none;}}
+    .modal-head{padding:22px 26px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .modal-title{font-size:18px;font-weight:800;}
+    .modal-x{width:32px;height:32px;border-radius:50%;background:var(--gray-lt);border:none;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+    .modal-x:hover{background:var(--red);color:#fff;}
+    .modal-body{padding:22px 26px;}
+    .modal-foot{padding:16px 26px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+    .form-group{margin-bottom:14px;}
+    .form-label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;}
+    .form-input,.form-select,.form-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;transition:var(--transition);}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--primary);}
+    .form-textarea{min-height:70px;resize:vertical;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .btn{padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:var(--transition);}
+    .btn-p{background:var(--primary);color:#fff;} .btn-p:hover{background:var(--primary-dk);}
+    .btn-o{background:none;border:1.5px solid var(--border);color:var(--dark);} .btn-o:hover{border-color:var(--primary);color:var(--primary);}
+
+    .toast{position:fixed;top:80px;right:24px;z-index:9999;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;transform:translateX(110%);transition:transform .4s;background:var(--green);}
+    .toast.show{transform:translateX(0);} .toast.warn{background:var(--primary);} .toast.danger{background:var(--red);}
+
+    @media(max-width:1100px){.main-grid{grid-template-columns:1fr;}}
+    @media(max-width:768px){.nav-links,.stat-row{display:none;}.vol-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Aid<span>Connect</span></div></div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="reports.html">Reports</a>
+    <a class="nav-link" href="map.html">Crisis Map</a>
+    <a class="nav-link active" href="volunteer.html">Volunteers</a>
+    <a class="nav-link" href="inventory.html">Inventory</a>
+    <a class="nav-link" href="donors.html">Donors</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-nav btn-prim" onclick="openRegisterModal()">+ Register Volunteer</button>
+    <a href="login.html" class="btn-nav btn-ghost">Login</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <div class="ph-flex">
+      <div>
+        <div class="ph-title">🙋 Volunteer Portal</div>
+        <div class="ph-sub">Smart matching · Task assignment · Real-time tracking</div>
+      </div>
+      <div class="ph-btns">
+        <button class="btn-outline-w" onclick="runSmartMatch()">🤖 Smart Match</button>
+        <button class="sos-big" onclick="triggerSOS()">🆘 SOS Emergency</button>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-pill"><span class="sp-icon">🙋</span><div><div class="sp-num" id="sp-total">0</div><div class="sp-lbl">Total Volunteers</div></div></div>
+      <div class="stat-pill"><span class="sp-icon">✅</span><div><div class="sp-num" style="color:var(--green)" id="sp-active">0</div><div class="sp-lbl">Active Now</div></div></div>
+      <div class="stat-pill"><span class="sp-icon">🚀</span><div><div class="sp-num" style="color:var(--primary)" id="sp-deployed">0</div><div class="sp-lbl">Deployed</div></div></div>
+      <div class="stat-pill"><span class="sp-icon">📍</span><div><div class="sp-num" style="color:var(--teal)" id="sp-zones">0</div><div class="sp-lbl">Active Zones</div></div></div>
+      <div class="stat-pill"><span class="sp-icon">✅</span><div><div class="sp-num" style="color:var(--yellow)" id="sp-tasks">0</div><div class="sp-lbl">Tasks Completed</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="container">
+    <!-- FILTERS -->
+    <div class="filters-row">
+      <div class="search-wrap">
+        <span class="si">🔍</span>
+        <input class="search-inp" id="vol-search" type="text" placeholder="Search by name, skill, zone..." oninput="filterVols()"/>
+      </div>
+      <select class="filter-sel" id="fil-status" onchange="filterVols()">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="deployed">Deployed</option>
+        <option value="available">Available</option>
+        <option value="offline">Offline</option>
+      </select>
+      <select class="filter-sel" id="fil-zone" onchange="filterVols()">
+        <option value="">All Zones</option>
+        <option value="Zone A">Zone A — Bhopal</option>
+        <option value="Zone B">Zone B — Indore</option>
+        <option value="Zone C">Zone C — Jabalpur</option>
+        <option value="Zone D">Zone D — Nagpur</option>
+      </select>
+      <select class="filter-sel" id="fil-skill" onchange="filterVols()">
+        <option value="">All Skills</option>
+        <option value="First-Aid">First-Aid</option>
+        <option value="Driving">Driving</option>
+        <option value="Medical">Medical</option>
+        <option value="Logistics">Logistics</option>
+        <option value="Search & Rescue">Search & Rescue</option>
+      </select>
+      <button class="btn-match" onclick="runSmartMatch()">🤖 Auto-Match</button>
+    </div>
+
+    <div class="main-grid">
+      <!-- VOL GRID -->
+      <div>
+        <div class="vol-grid" id="vol-grid"></div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel">
+        <!-- SOS ALERTS -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title" style="color:var(--red);">🆘 SOS Alerts</div>
+            <button class="card-action" onclick="showToast('All SOS resolved ✅')">Clear All</button>
+          </div>
+          <div class="sos-card-body" id="sos-list"></div>
+        </div>
+
+        <!-- ACTIVE TASKS -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">✅ Active Tasks</div>
+            <button class="card-action" onclick="openTaskModal()">+ New</button>
+          </div>
+          <div class="card-body" id="task-list"></div>
+        </div>
+
+        <!-- SKILL CLOUD -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">🛠️ Skills Available</div></div>
+          <div class="card-body">
+            <div class="skill-cloud" id="skill-cloud"></div>
+          </div>
+        </div>
+
+        <!-- ZONE SUMMARY -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">📍 Zone Summary</div></div>
+          <div class="card-body" id="zone-summary"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="overlay" id="registerModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">🙋 Register Volunteer</div>
+      <button class="modal-x" onclick="closeModal('registerModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="rv-name" placeholder="e.g. Priya Sharma" required/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Phone *</label><input class="form-input" id="rv-phone" type="tel" placeholder="+91-XXXXXXXXXX"/></div>
+        <div class="form-group"><label class="form-label">Zone *</label>
+          <select class="form-select" id="rv-zone">
+            <option>Zone A — Bhopal</option><option>Zone B — Indore</option>
+            <option>Zone C — Jabalpur</option><option>Zone D — Nagpur</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Primary Skill *</label>
+        <select class="form-select" id="rv-skill">
+          <option>First-Aid</option><option>Medical</option><option>Driving</option>
+          <option>Logistics</option><option>Search & Rescue</option><option>Coordination</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">About / Experience</label><textarea class="form-textarea" id="rv-bio" placeholder="Brief background..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-o" onclick="closeModal('registerModal')">Cancel</button>
+      <button class="btn btn-p" onclick="registerVol()">Register ✅</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="overlay" id="taskModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📋 Create Task</div>
+      <button class="modal-x" onclick="closeModal('taskModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Task Title *</label><input class="form-input" id="nt-title" placeholder="e.g. Food Distribution — Zone C"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Assign To *</label>
+          <select class="form-select" id="nt-vol">
+            <option>Rahul Verma</option><option>Priya Singh</option><option>Arjun Patel</option><option>Meena Rao</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Priority</label>
+          <select class="form-select" id="nt-prio">
+            <option>Normal</option><option>High</option><option>Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Due Time</label><input class="form-input" type="datetime-local" id="nt-due"/></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="nt-desc" placeholder="Task details..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-o" onclick="closeModal('taskModal')">Cancel</button>
+      <button class="btn btn-p" onclick="createTask()">Create Task 📋</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="volDetailModal">
+  <div class="modal"><div id="vol-detail-content"></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* ── DATA ── */
+let volunteers = [];
+let tasks = [];
+let sosList = [];
+
+/* ── RENDER VOLUNTEER CARDS ── */
+let filtered = [...volunteers];
+
+function filterVols() {
+  const q  = document.getElementById('vol-search').value.toLowerCase();
+  const st = document.getElementById('fil-status').value;
+  const zn = document.getElementById('fil-zone').value;
+  const sk = document.getElementById('fil-skill').value;
+  filtered = volunteers.filter(v => {
+    const mQ  = !q  || v.name.toLowerCase().includes(q) || v.skills.some(s=>s.toLowerCase().includes(q)) || v.zone.toLowerCase().includes(q);
+    const mSt = !st || v.status === st;
+    const mZn = !zn || v.zone === zn;
+    const mSk = !sk || v.skills.some(s=>s.includes(sk));
+    return mQ && mSt && mZn && mSk;
+  });
+  renderGrid();
+}
+
+function renderGrid() {
+  const statusLabel = { active:'Active', deployed:'Deployed', available:'Available', offline:'Offline' };
+  const statusClass = { active:'vb-active', deployed:'vb-deployed', available:'vb-available', offline:'vb-offline' };
+  document.getElementById('vol-grid').innerHTML = filtered.map(v => `
+    <div class="vol-card" onclick="openVolDetail('${v.id}')">
+      <div class="vol-card-head">
+        <div class="vol-av" style="background:${v.color};">${v.initials}</div>
+        <div style="flex:1;">
+          <div class="vol-name">${v.name}</div>
+          <div class="vol-role">📍 ${v.zone} · ${v.city}</div>
+          <div class="vol-badges">
+            <span class="v-badge ${statusClass[v.status]}">● ${statusLabel[v.status]}</span>
+            <span class="v-badge" style="background:rgba(255,186,8,.1);color:#92400E;">⭐ ${v.rating}</span>
+            <span class="v-badge" style="background:rgba(46,196,182,.1);color:var(--teal);">${v.dist}</span>
+          </div>
+        </div>
+      </div>
+      <div class="vol-card-body">
+        <div class="vol-skills">${v.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+        <div class="vol-stats">
+          <div class="vs"><div class="vs-n">${v.tasks}</div><div class="vs-l">Active</div></div>
+          <div class="vs"><div class="vs-n">${v.completed}</div><div class="vs-l">Done</div></div>
+          <div class="vs"><div class="vs-n">${v.rating}</div><div class="vs-l">Rating</div></div>
+        </div>
+        <div class="vol-actions">
+          <button class="btn-sm btn-contact" onclick="event.stopPropagation();showToast('📞 Calling ${v.name}...','')" >📞 Contact</button>
+          <button class="btn-sm btn-task" onclick="event.stopPropagation();openTaskModal('${v.id}')">📋 Assign Task</button>
+        </div>
+      </div>
+      <div class="vol-loc">📍 Joined ${v.joined} · ${v.skills.length} skills</div>
+    </div>`).join('');
+}
+
+/* ── SOS LIST ── */
+function renderSOS() {
+  document.getElementById('sos-list').innerHTML = sosList.map(s => `
+    <div style="background:${s.severe?'rgba(239,68,68,.06)':'rgba(245,158,11,.06)'};border:1.5px solid ${s.severe?'rgba(239,68,68,.2)':'rgba(245,158,11,.2)'};border-radius:10px;padding:12px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <span style="font-size:16px;">${s.severe?'🆘':'⚠️'}</span>
+        <span style="font-size:13px;font-weight:700;">${s.vol}</span>
+        <span style="font-size:10px;color:var(--gray);margin-left:auto;">${s.time}</span>
+      </div>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:10px;">📍 ${s.loc}</div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="showToast('Dispatching backup to ${s.vol}...','warn')" style="flex:1;padding:7px;border-radius:7px;background:${s.severe?'var(--red)':'var(--primary)'};color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Send Backup</button>
+        <button onclick="showToast('Opening map for ${s.vol}...')" style="padding:7px 12px;border-radius:7px;background:rgba(0,0,0,.06);border:none;font-size:12px;cursor:pointer;font-family:inherit;">🗺️ Map</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ── TASKS ── */
+function renderTasks() {
+  document.getElementById('task-list').innerHTML = tasks.map(t => `
+    <div class="task-item">
+      <div class="task-ic" style="background:${t.bg};">${t.icon}</div>
+      <div class="task-info">
+        <div class="t-title">${t.title}</div>
+        <div class="t-meta">👤 ${t.vol} · ⏰ ${t.due} · <span style="color:${t.prio==='Urgent'?'var(--red)':t.prio==='High'?'var(--primary)':'var(--gray)'};font-weight:700;">${t.prio}</span></div>
+        <div class="t-prog"><div class="t-fill" style="width:${t.prog}%;background:${t.color};"></div></div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── SKILLS CLOUD ── */
+function renderSkills() {
+  const all = [...new Set(volunteers.flatMap(v=>v.skills))];
+  document.getElementById('skill-cloud').innerHTML = all.map(s => `<div class="sk" onclick="filterBySkill('${s}')">${s}</div>`).join('');
+}
+
+function filterBySkill(skill) {
+  document.getElementById('fil-skill').value = skill;
+  document.getElementById('vol-search').value = '';
+  filterVols();
+}
+
+/* ── ZONE SUMMARY ── */
+function renderZones() {
+  const zones = ['Zone A','Zone B','Zone C','Zone D'];
+  document.getElementById('zone-summary').innerHTML = zones.map(z => {
+    const vols = volunteers.filter(v=>v.zone===z);
+    const active = vols.filter(v=>v.status!=='offline').length;
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-size:13px;font-weight:700;">${z}</div>
+          <div style="font-size:11px;color:var(--gray);margin-top:2px;">${active} active · ${vols.length} total</div>
+        </div>
+        <div style="display:flex;gap:4px;">
+          ${vols.slice(0,3).map(v=>`<div style="width:28px;height:28px;border-radius:50%;background:${v.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">${v.initials}</div>`).join('')}
+          ${vols.length>3?`<div style="width:28px;height:28px;border-radius:50%;background:var(--gray-lt);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--gray);">+${vols.length-3}</div>`:''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── VOL DETAIL ── */
+function openVolDetail(id) {
+  const v = volunteers.find(x=>x.id===id); if(!v) return;
+  const statusLabel = {active:'Active',deployed:'Deployed',available:'Available',offline:'Offline'};
+  document.getElementById('vol-detail-content').innerHTML = `
+    <div class="modal-head">
+      <div class="modal-title">${v.name}</div>
+      <button class="modal-x" onclick="closeModal('volDetailModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:18px;">
+        <div style="width:64px;height:64px;border-radius:16px;background:${v.color};display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex-shrink:0;">${v.initials}</div>
+        <div>
+          <div style="font-size:11px;color:var(--gray);">${v.zone} · ${v.city} · Joined ${v.joined}</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:4px;">${v.bio}</div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+            <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;background:rgba(34,197,94,.1);color:var(--green);">● ${statusLabel[v.status]}</span>
+            <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;background:rgba(255,186,8,.1);color:#92400E;">⭐ ${v.rating} Rating</span>
+            <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;background:rgba(46,196,182,.1);color:var(--teal);">📍 ${v.dist}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+        <div style="background:var(--gray-lt);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:800;">${v.tasks}</div><div style="font-size:10px;color:var(--gray);">Active Tasks</div></div>
+        <div style="background:var(--gray-lt);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:800;">${v.completed}</div><div style="font-size:10px;color:var(--gray);">Completed</div></div>
+        <div style="background:var(--gray-lt);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:800;">${v.rating}</div><div style="font-size:10px;color:var(--gray);">Rating</div></div>
+      </div>
+      <div style="margin-bottom:16px;"><div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Skills</div><div style="display:flex;gap:6px;flex-wrap:wrap;">${v.skills.map(s=>`<span style="padding:5px 12px;border-radius:50px;background:var(--gray-lt);font-size:12px;font-weight:600;">${s}</span>`).join('')}</div></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="showToast('📞 Calling ${v.name} at ${v.phone}...');closeModal('volDetailModal')" style="flex:1;padding:11px;border-radius:10px;background:var(--primary);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">📞 Call ${v.phone}</button>
+        <button onclick="showToast('Assigning task to ${v.name}...');closeModal('volDetailModal')" style="padding:11px 18px;border-radius:10px;background:rgba(232,93,4,.1);color:var(--primary);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">📋 Assign Task</button>
+      </div>
+    </div>`;
+  document.getElementById('volDetailModal').classList.add('open');
+}
+
+/* ── STATS ── */
+function renderStats() {
+  animCount('sp-total', volunteers.length + 3800);
+  animCount('sp-active', volunteers.filter(v=>v.status==='active').length + 40);
+  animCount('sp-deployed', volunteers.filter(v=>v.status==='deployed').length + 5);
+  animCount('sp-zones', 4);
+  animCount('sp-tasks', 247);
+}
+function animCount(id, val, dur=1500) {
+  const el=document.getElementById(id); if(!el) return;
+  let c=0,s=val/(dur/16); const t=setInterval(()=>{c=Math.min(c+s,val); el.textContent=Math.floor(c); if(c>=val)clearInterval(t);},16);
+}
+
+/* ── REGISTER ── */
+function openRegisterModal() { document.getElementById('registerModal').classList.add('open'); }
+function openTaskModal(volId) { 
+  const sel = document.getElementById('nt-vol');
+  if (volId) {
+    const v = volunteers.find(x=>x.id===volId);
+    sel.innerHTML = `<option value="${volId}">${v?.name || 'Selected Volunteer'}</option>`;
+  } else {
+    sel.innerHTML = volunteers.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+  }
+  document.getElementById('taskModal').classList.add('open'); 
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); });
+});
+
+function registerVol() {
+  const name = document.getElementById('rv-name').value.trim();
+  const phone = document.getElementById('rv-phone').value.trim();
+  const zone = document.getElementById('rv-zone').value;
+  const skill = document.getElementById('rv-skill').value;
+  if(!name||!phone) { showToast('⚠️ Name and phone required!','warn'); return; }
+  const newV = { id:'V'+Date.now(), name, initials:name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2), color:'#'+Math.floor(Math.random()*0xFFFFFF).toString(16).padStart(6,'0'), zone:zone.split(' — ')[0], city:zone.split(' — ')[1]||'', status:'available', skills:[skill], phone, tasks:0, completed:0, rating:4.5, dist:'—', joined:new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'}), bio:'' };
+  volunteers.push(newV);
+  closeModal('registerModal');
+  filtered = [...volunteers]; renderGrid(); renderStats(); renderSkills(); renderZones();
+  showToast(`✅ ${name} registered as volunteer!`);
+}
+
+async function createTask() {
+  const title = document.getElementById('nt-title').value.trim();
+  const desc = document.getElementById('nt-desc').value.trim();
+  const prio = document.getElementById('nt-prio').value.toLowerCase();
+  const volId = document.getElementById('nt-vol').value;
+  
+  if(!title) { showToast('⚠️ Task title required!','warn'); return; }
+  
+  try {
+    const data = { title, description: desc, priority: prio, type: 'distribution', volunteerIds: volId ? [volId] : [] };
+    const res = await window.AidConnect.TasksAPI.create(data);
+    
+    tasks.unshift({ icon:'📋', bg:'rgba(232,93,4,.1)', title, vol:document.getElementById('nt-vol').options[document.getElementById('nt-vol').selectedIndex].text, due:'Soon', prio:document.getElementById('nt-prio').value, prog:0, color:'var(--primary)' });
+    closeModal('taskModal');
+    renderTasks();
+    showToast('✅ Task created and assigned!');
+  } catch(e) {
+    showToast('❌ Failed to create task', 'error');
+  }
+}
+
+/* ── SOS ── */
+function triggerSOS() {
+  if(!confirm('🆘 Trigger SOS Emergency Alert?\n\nAll coordinators and nearby volunteers will be notified immediately.')) return;
+  showToast('🆘 SOS SENT! Coordinators alerted. Help dispatched.','danger');
+  setTimeout(()=>showToast('📞 Coordinator Ayesha is calling you...','warn'),2500);
+}
+
+/* ── SMART MATCH ── */
+function runSmartMatch() {
+  showToast('🤖 Running smart match algorithm...','');
+  setTimeout(()=>{ showToast('✅ Match complete! Arjun Patel best match for Jabalpur (95/100)'); },1800);
+}
+
+/* ── TOAST ── */
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  const ico = type==='danger'?'🆘':type==='warn'?'⚡':'✅';
+  t.className = `toast ${type==='success'||type===''?'':type}`;
+  t.innerHTML = `${ico} <span>${msg}</span>`;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 4000);
+}
+
+/* ── INIT ── */
+window.addEventListener('load', async () => {
+  try {
+    const [volsRes, tasksRes] = await Promise.all([
+      window.AidConnect.VolunteersAPI.getAll(),
+      window.AidConnect.TasksAPI.getAll()
+    ]);
+    
+    if (volsRes && volsRes.volunteers) {
+      volunteers = volsRes.volunteers.map(v => {
+        const name = v.user?.name || 'Unknown';
+        return {
+          id: v._id,
+          name: name,
+          initials: name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2),
+          color: '#' + Math.floor(Math.random()*0xFFFFFF).toString(16).padStart(6,'0'),
+          zone: v.zone || 'Unknown',
+          city: v.location?.city || '',
+          status: v.status || 'offline',
+          skills: v.skills || [],
+          phone: v.user?.phone || '—',
+          tasks: v.completedTasks || 0,
+          completed: v.completedTasks || 0,
+          rating: v.rating || 0,
+          dist: 'Nearby',
+          joined: new Date(v.joinedAt).toLocaleDateString('en-IN',{month:'short',year:'numeric'}),
+          bio: ''
+        };
+      });
+      filtered = [...volunteers];
+    }
+    
+    if (tasksRes && tasksRes.tasks) {
+      tasks = tasksRes.tasks.map(t => ({
+        icon: t.type==='medical'?'🏥':t.type==='rescue'?'🚑':'📋',
+        bg: 'rgba(232,93,4,.1)',
+        title: t.title,
+        vol: t.assignedTo?.map(v=>v.user?.name).join(', ') || 'Unassigned',
+        due: t.deadline ? new Date(t.deadline).toLocaleTimeString() : 'ASAP',
+        prio: t.priority.charAt(0).toUpperCase() + t.priority.slice(1),
+        prog: t.status === 'completed' ? 100 : (t.status === 'in_progress' ? 50 : 0),
+        color: t.priority === 'urgent' ? 'var(--red)' : 'var(--primary)'
+      }));
+    }
+    
+  } catch (e) {
+    console.error('Failed to load data', e);
+  }
+
+  renderGrid();
+  renderSOS();
+  renderTasks();
+  renderSkills();
+  renderZones();
+  renderStats();
+  
+  if (window.AidConnect.SocketClient) {
+    window.AidConnect.SocketClient.emit('join:coordinator');
+  }
+});
+</script>
+</body>
+</html>

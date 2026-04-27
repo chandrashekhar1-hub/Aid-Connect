@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Donors Portal — AidConnect</title>
+  <meta name="description" content="Support disaster relief in India. Donate to active crises, track impact, and see every rupee at work. AidConnect NGO."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{--primary:#E85D04;--primary-dk:#C44B00;--yellow:#FFBA08;--teal:#2EC4B6;--navy:#0D1B2A;--navy-lt:#162435;--dark:#1A1A2E;--gray:#6B7280;--gray-lt:#F3F4F6;--white:#fff;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;--border:#E5E7EB;--shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 8px 40px rgba(0,0,0,.14);--radius:14px;--radius-sm:10px;--transition:all .25s cubic-bezier(.4,0,.2,1);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--gray-lt);color:var(--dark);}
+    a{text-decoration:none;color:inherit;}
+    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px;}
+
+    .navbar{background:var(--navy);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .nav-brand{display:flex;align-items:center;gap:10px;}
+    .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--yellow));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .brand-name{font-family:'Playfair Display',serif;font-size:19px;font-weight:800;color:#fff;}
+    .brand-name span{color:var(--primary);}
+    .nav-links{display:flex;gap:4px;}
+    .nav-link{padding:7px 14px;border-radius:50px;font-size:13px;color:rgba(255,255,255,.65);transition:var(--transition);}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,.1);color:#fff;}
+    .nav-right{display:flex;gap:10px;}
+    .btn-nav{padding:8px 18px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:var(--transition);}
+    .btn-prim{background:var(--primary);color:#fff;} .btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);}
+
+    /* ── HERO ── */
+    .hero{background:linear-gradient(135deg, #0D1B2A 0%, #1a2a3a 50%, #2d1a00 100%);color:#fff;padding:80px 0 60px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:-40%;left:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(232,93,4,.15),transparent 70%);pointer-events:none;}
+    .hero::after{content:'';position:absolute;bottom:-30%;right:-5%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,186,8,.1),transparent 70%);pointer-events:none;}
+    .hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,186,8,.15);border:1px solid rgba(255,186,8,.3);border-radius:50px;padding:6px 16px;font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:20px;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:52px;font-weight:800;line-height:1.15;margin-bottom:16px;}
+    .hero-title span{color:var(--primary);}
+    .hero-desc{font-size:17px;color:rgba(255,255,255,.65);max-width:580px;margin:0 auto 32px;line-height:1.7;}
+    .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+    .btn-hero-primary{padding:14px 32px;border-radius:50px;background:var(--primary);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .btn-hero-primary:hover{background:var(--primary-dk);transform:translateY(-2px);}
+    .btn-hero-outline{padding:14px 32px;border-radius:50px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .btn-hero-outline:hover{background:rgba(255,255,255,.16);}
+    .hero-stats{display:flex;justify-content:center;gap:40px;margin-top:48px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap;}
+    .hs-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:800;color:var(--yellow);}
+    .hs-lbl{font-size:13px;color:rgba(255,255,255,.5);}
+
+    .container{max-width:1280px;margin:0 auto;padding:0 28px;}
+
+    /* ── IMPACT STRIP ── */
+    .impact-strip{background:var(--primary);color:#fff;padding:16px 0;overflow:hidden;}
+    .marquee-track{display:flex;gap:40px;animation:marquee 20s linear infinite;white-space:nowrap;}
+    .marquee-track:hover{animation-play-state:paused;}
+    @keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+    .marquee-item{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+
+    /* ── SECTION ── */
+    .section{padding:64px 0;}
+    .sec-tag{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--primary);margin-bottom:10px;}
+    .sec-title{font-family:'Playfair Display',serif;font-size:36px;font-weight:800;color:var(--dark);margin-bottom:12px;}
+    .sec-title span{color:var(--primary);}
+    .sec-desc{font-size:16px;color:var(--gray);max-width:540px;line-height:1.7;}
+
+    /* ── DONATION CARD ── */
+    .donate-grid{display:grid;grid-template-columns:1fr 440px;gap:32px;align-items:start;}
+    .donate-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:32px;position:sticky;top:84px;}
+    .donate-title{font-size:22px;font-weight:800;margin-bottom:6px;}
+    .donate-sub{font-size:13px;color:var(--gray);margin-bottom:24px;}
+
+    /* CAUSE SELECT */
+    .cause-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+    .cause-opt{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px;cursor:pointer;transition:var(--transition);}
+    .cause-opt:hover{border-color:var(--primary);background:rgba(232,93,4,.04);}
+    .cause-opt.active{border-color:var(--primary);background:rgba(232,93,4,.06);}
+    .co-emoji{font-size:22px;margin-bottom:4px;}
+    .co-name{font-size:13px;font-weight:700;color:var(--dark);}
+    .co-raised{font-size:11px;color:var(--gray);margin-top:2px;}
+    .prog-wrap{height:4px;background:#F0F0F0;border-radius:50px;overflow:hidden;margin-top:6px;}
+    .prog-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--primary),var(--yellow));}
+
+    /* AMOUNT SELECTOR */
+    .amount-section{margin-bottom:20px;}
+    .amount-label{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px;}
+    .amount-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+    .amt-btn{padding:10px 20px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:var(--transition);font-family:inherit;color:var(--dark);}
+    .amt-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .amt-btn:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+    .custom-amt{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;outline:none;transition:var(--transition);}
+    .custom-amt:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(232,93,4,.1);}
+
+    /* DONOR FORM */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .form-group{margin-bottom:14px;}
+    .form-label{display:block;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;}
+    .form-input,.form-select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;transition:var(--transition);}
+    .form-input:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(232,93,4,.1);}
+
+    .btn-donate{width:100%;padding:16px;border-radius:var(--radius-sm);background:var(--primary);color:#fff;font-size:16px;font-weight:800;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn-donate:hover{background:var(--primary-dk);transform:translateY(-1px);}
+    .secure-note{font-size:11px;color:var(--gray);text-align:center;margin-top:10px;}
+
+    /* ── CRISIS CAUSES ── */
+    .causes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+    .crisis-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:var(--transition);}
+    .crisis-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+    .cc-cover{height:160px;display:flex;align-items:center;justify-content:center;font-size:60px;}
+    .cc-body{padding:20px;}
+    .cc-tag{font-size:10px;font-weight:800;padding:4px 10px;border-radius:50px;margin-bottom:10px;display:inline-block;}
+    .cc-title{font-size:15px;font-weight:800;margin-bottom:6px;color:var(--dark);}
+    .cc-desc{font-size:13px;color:var(--gray);line-height:1.6;margin-bottom:14px;}
+    .cc-progress{margin-bottom:14px;}
+    .cc-prog-bar{height:6px;background:#F0F0F0;border-radius:50px;overflow:hidden;margin-top:6px;}
+    .cc-prog-fill{height:100%;border-radius:50px;}
+    .cc-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--gray);}
+    .cc-bottom{display:flex;justify-content:space-between;align-items:center;}
+    .cc-vols{font-size:12px;color:var(--gray);}
+    .btn-donate-small{padding:9px 20px;border-radius:50px;background:var(--primary);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);}
+    .btn-donate-small:hover{background:var(--primary-dk);}
+
+    /* ── IMPACT SECTION ── */
+    .impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+    .impact-card{background:#fff;border-radius:var(--radius);padding:28px 22px;text-align:center;box-shadow:var(--shadow);}
+    .ic-icon{font-size:40px;margin-bottom:12px;}
+    .ic-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:800;color:var(--primary);}
+    .ic-lbl{font-size:14px;color:var(--gray);margin-top:6px;line-height:1.5;}
+
+    /* ── DONORS LIST ── */
+    .donors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+    .donor-card{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;}
+    .donor-av{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0;}
+    .donor-name{font-size:14px;font-weight:700;color:var(--dark);}
+    .donor-amount{font-size:22px;font-weight:800;color:var(--primary);}
+    .donor-cause{font-size:11px;color:var(--gray);margin-top:3px;}
+    .donor-time{font-size:11px;color:var(--gray);}
+
+    /* ── CHART SECTION ── */
+    .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+    /* OVERLAY THANK YOU */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+    .overlay.open{display:flex;}
+    .thanks-modal{background:#fff;border-radius:24px;padding:48px 40px;text-align:center;max-width:440px;width:92%;box-shadow:0 30px 80px rgba(0,0,0,.3);animation:bounceIn .5s ease;}
+    @keyframes bounceIn{0%{transform:scale(.7);opacity:0;}60%{transform:scale(1.05);}100%{transform:scale(1);opacity:1;}}
+    .ty-icon{font-size:64px;margin-bottom:16px;}
+    .ty-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;margin-bottom:8px;color:var(--dark);}
+    .ty-sub{font-size:15px;color:var(--gray);line-height:1.6;margin-bottom:24px;}
+    .btn-close-ty{padding:14px 32px;border-radius:50px;background:var(--primary);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:var(--transition);}
+
+    .toast{position:fixed;top:80px;right:24px;z-index:9999;color:#fff;padding:14px 22px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;transform:translateX(110%);transition:transform .4s;background:var(--green);}
+    .toast.show{transform:translateX(0);} .toast.warn{background:var(--primary);}
+
+    @media(max-width:960px){.donate-grid{grid-template-columns:1fr;}.causes-grid{grid-template-columns:1fr 1fr;}.impact-grid{grid-template-columns:1fr 1fr;}.chart-grid{grid-template-columns:1fr;}}
+    @media(max-width:600px){.nav-links,.hero-stats{display:none;}.causes-grid,.impact-grid{grid-template-columns:1fr;}.cause-picker,.form-row{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Aid<span>Connect</span></div></div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="reports.html">Reports</a>
+    <a class="nav-link" href="map.html">Crisis Map</a>
+    <a class="nav-link" href="volunteer.html">Volunteers</a>
+    <a class="nav-link active" href="donors.html">Donors</a>
+  </div>
+  <div class="nav-right">
+    <a href="login.html" class="btn-nav btn-ghost">Login</a>
+    <button class="btn-nav btn-prim" onclick="document.getElementById('donate-section').scrollIntoView({behavior:'smooth'})">❤️ Donate Now</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-tag">❤️ 100% Transparent Donations</div>
+    <div class="hero-title">Your Donation <span>Saves Lives</span><br>in Real-Time</div>
+    <div class="hero-desc">Every rupee you donate goes directly to active crisis relief — food, medicine, shelter and rescue operations across India.</div>
+    <div class="hero-btns">
+      <button class="btn-hero-primary" onclick="document.getElementById('donate-section').scrollIntoView({behavior:'smooth'})">❤️ Donate Now</button>
+      <button class="btn-hero-outline" onclick="document.getElementById('impact-section').scrollIntoView({behavior:'smooth'})">📊 See Our Impact</button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hs-num" id="hs-raised">₹0</div><div class="hs-lbl">Total Raised</div></div>
+      <div><div class="hs-num" id="hs-donors">0</div><div class="hs-lbl">Donors</div></div>
+      <div><div class="hs-num" id="hs-families">0K</div><div class="hs-lbl">Families Helped</div></div>
+      <div><div class="hs-num" id="hs-states">0</div><div class="hs-lbl">States Covered</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT STRIP -->
+<div class="impact-strip">
+  <div class="marquee-track" id="marquee"></div>
+</div>
+
+<!-- DONATE SECTION -->
+<section class="section" id="donate-section">
+  <div class="container">
+    <div class="donate-grid">
+      <!-- LEFT INFO -->
+      <div>
+        <div class="sec-tag">— ACTIVE CRISES</div>
+        <div class="sec-title">Find the <span>Active Cause</span></div>
+        <div class="sec-desc" style="margin-bottom:32px;">Real-time crisis reports awaiting your support. Every report matters.</div>
+        <div class="causes-grid" id="causes-grid"></div>
+      </div>
+
+      <!-- DONATE CARD -->
+      <div class="donate-card" id="donate-form">
+        <div class="donate-title">❤️ Make a Donation</div>
+        <div class="donate-sub">100% of funds go to active relief operations</div>
+
+        <div style="margin-bottom:18px;">
+          <div class="form-label" style="margin-bottom:8px;">Choose Cause</div>
+          <div class="cause-picker" id="cause-picker"></div>
+        </div>
+
+        <div class="amount-section">
+          <div class="amount-label">Select Amount</div>
+          <div class="amount-btns" id="amt-btns">
+            <button class="amt-btn" onclick="selectAmt(500,this)">₹500</button>
+            <button class="amt-btn active" onclick="selectAmt(1000,this)">₹1,000</button>
+            <button class="amt-btn" onclick="selectAmt(2500,this)">₹2,500</button>
+            <button class="amt-btn" onclick="selectAmt(5000,this)">₹5,000</button>
+            <button class="amt-btn" onclick="selectAmt(10000,this)">₹10,000</button>
+          </div>
+          <input class="custom-amt" type="number" id="custom-amt" placeholder="Or enter custom amount (₹)" oninput="customAmount(this.value)" value="1000"/>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input class="form-input" type="text" id="d-fname" placeholder="Rahul"/></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" id="d-lname" placeholder="Sharma"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="d-email" placeholder="you@example.com"/></div>
+        <div class="form-group"><label class="form-label">Phone (optional)</label><input class="form-input" type="tel" id="d-phone" placeholder="+91-XXXXXXXXXX"/></div>
+        <div class="form-group">
+          <label class="form-label">Message (optional)</label>
+          <input class="form-input" type="text" id="d-msg" placeholder="Stay strong! Prayers with you 🙏"/>
+        </div>
+
+        <button class="btn-donate" id="btn-donate" onclick="processDonation()">
+          ❤️ Donate <span id="donate-amt-label">₹1,000</span> Securely
+        </button>
+        <div class="secure-note">🔒 256-bit SSL · 80G Tax Exemption Available · UPI / Card / Net Banking</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT SECTION -->
+<section class="section" style="background:#fff;" id="impact-section">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div class="sec-tag">— OUR IMPACT</div>
+      <div class="sec-title">Numbers That <span>Tell The Story</span></div>
+    </div>
+    <div class="impact-grid">
+      <div class="impact-card"><div class="ic-icon">🏠</div><div class="ic-num" id="ic-families">0</div><div class="ic-lbl">Families received emergency shelter &amp; support</div></div>
+      <div class="impact-card"><div class="ic-icon">🍱</div><div class="ic-num" id="ic-meals">0</div><div class="ic-lbl">Food packets distributed across 18 states</div></div>
+      <div class="impact-card"><div class="ic-icon">💊</div><div class="ic-num" id="ic-med">0</div><div class="ic-lbl">Medical kits deployed to disaster zones</div></div>
+      <div class="impact-card"><div class="ic-icon">🙋</div><div class="ic-num" id="ic-vols">0</div><div class="ic-lbl">Volunteers deployed across active crises</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- RECENT DONORS -->
+<section class="section">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div class="sec-tag">— COMMUNITY</div>
+        <div class="sec-title" style="font-size:28px;">Recent <span>Donors</span></div>
+      </div>
+      <button onclick="showToast('Viewing full donor leaderboard...')" style="padding:10px 22px;border-radius:50px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:var(--transition);" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='inherit'">View All Donors →</button>
+    </div>
+    <div class="donors-grid" id="donors-grid"></div>
+  </div>
+</section>
+
+<!-- CHARTS -->
+<section class="section" style="background:#fff;padding:48px 0;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div class="sec-tag">— TRANSPARENCY</div>
+      <div class="sec-title" style="font-size:28px;">Fund <span>Allocation</span></div>
+    </div>
+    <div class="chart-grid">
+      <div style="background:var(--gray-lt);border-radius:var(--radius);padding:24px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Monthly Donations (₹)</div>
+        <canvas id="lineChart" height="200"></canvas>
+      </div>
+      <div style="background:var(--gray-lt);border-radius:var(--radius);padding:24px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">How Your Donation Is Used</div>
+        <canvas id="pieChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THANK YOU MODAL -->
+<div class="overlay" id="thanksModal">
+  <div class="thanks-modal">
+    <div class="ty-icon">🙏</div>
+    <div class="ty-title">Thank You!</div>
+    <div class="ty-sub" id="ty-msg">Your donation of <strong>₹1,000</strong> has been received. You've helped change lives today. A receipt will be sent to your email.</div>
+    <button class="btn-close-ty" onclick="closeThanks()">🌟 Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── DATA ── */
+const causes = [
+  { id:'flood', emoji:'🌊', name:'Flood Relief — Jabalpur', raised:144000, goal:200000, vols:4, tag:'CRITICAL', tagBg:'#FEE2E2', tagColor:'#DC2626' },
+  { id:'medical', emoji:'🏥', name:'Medical Emergency — Indore', raised:82500, goal:130000, vols:2, tag:'HIGH', tagBg:'#FEF3C7', tagColor:'#D97706' },
+  { id:'food', emoji:'🍱', name:'Food Shortage — Raipur', raised:60000, goal:107500, vols:6, tag:'IN PROGRESS', tagBg:'#CCFBF1', tagColor:'#0D9488' },
+];
+
+const donors = [
+  { name:'Anonymous',         color:'#E85D04', amount:'₹5,000',  cause:'Flood Relief', time:'2m ago' },
+  { name:'Pooja Mehta',       color:'#3B82F6', amount:'₹2,500',  cause:'Medical Camp', time:'15m ago' },
+  { name:'Rajesh Kumar',      color:'#22C55E', amount:'₹10,000', cause:'Flood Relief', time:'30m ago' },
+  { name:'Sunita Sharma',     color:'#8B5CF6', amount:'₹1,000',  cause:'Food Shortage',time:'1h ago' },
+  { name:'TCS CSR Fund',      color:'#F59E0B', amount:'₹50,000', cause:'All Crises',   time:'2h ago' },
+  { name:'Priya Nair',        color:'#2EC4B6', amount:'₹3,000',  cause:'Flood Relief', time:'3h ago' },
+  { name:'Mohammed Iqbal',    color:'#EF4444', amount:'₹7,500',  cause:'Medical Camp', time:'5h ago' },
+  { name:'Infosys Foundation',color:'#0D9488', amount:'₹1,00,000',cause:'All Crises',  time:'1d ago' },
+];
+
+let selectedCause = 'flood';
+let selectedAmount = 1000;
+
+/* ── RENDER CAUSES ── */
+function renderCauses() {
+  document.getElementById('causes-grid').innerHTML = causes.map(c => {
+    const pct = Math.round((c.raised/c.goal)*100);
+    return `
+      <div class="crisis-card">
+        <div class="cc-cover" style="background:${c.id==='flood'?'linear-gradient(135deg,#dbeafe,#bfdbfe)':c.id==='medical'?'linear-gradient(135deg,#fee2e2,#fca5a5)':'linear-gradient(135deg,#fef3c7,#fde68a)'};">${c.emoji}</div>
+        <div class="cc-body">
+          <span class="cc-tag" style="background:${c.tagBg};color:${c.tagColor};">${c.tag}</span>
+          <div class="cc-title">${c.name}</div>
+          <div class="cc-desc">Real-time crisis awaiting donor support. Every contribution counts.</div>
+          <div class="cc-progress">
+            <div class="cc-meta"><span>₹${c.raised.toLocaleString('en-IN')} raised</span><span>Goal: ₹${c.goal.toLocaleString('en-IN')}</span></div>
+            <div class="cc-prog-bar"><div class="cc-prog-fill" style="width:${pct}%;background:${c.id==='flood'?'var(--primary)':c.id==='medical'?'var(--red)':'var(--teal)'};"></div></div>
+          </div>
+          <div class="cc-bottom">
+            <span class="cc-vols">🙋 ${c.vols} volunteers assigned</span>
+            <button class="btn-donate-small" onclick="selectCauseAndDonate('${c.id}')">Donate →</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── CAUSE PICKER IN FORM ── */
+function renderCausePicker() {
+  document.getElementById('cause-picker').innerHTML = causes.map(c => {
+    const pct = Math.round((c.raised/c.goal)*100);
+    return `
+      <div class="cause-opt ${c.id===selectedCause?'active':''}" id="cp-${c.id}" onclick="pickCause('${c.id}')">
+        <div class="co-emoji">${c.emoji}</div>
+        <div class="co-name">${c.name.split(' — ')[1]||c.name}</div>
+        <div class="co-raised">₹${c.raised.toLocaleString('en-IN')} raised</div>
+        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
+      </div>`;
+  }).join('');
+}
+
+function pickCause(id) {
+  selectedCause = id;
+  document.querySelectorAll('.cause-opt').forEach(el=>el.classList.remove('active'));
+  document.getElementById('cp-'+id).classList.add('active');
+}
+
+function selectCauseAndDonate(id) {
+  pickCause(id);
+  document.getElementById('donate-section').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>document.getElementById('donate-form').style.boxShadow='0 0 0 3px rgba(232,93,4,.3)',600);
+  setTimeout(()=>document.getElementById('donate-form').style.boxShadow='',2000);
+}
+
+/* ── AMOUNT SELECTOR ── */
+function selectAmt(amt, btn) {
+  selectedAmount = amt;
+  document.getElementById('custom-amt').value = amt;
+  document.querySelectorAll('.amt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateDonateLabel();
+}
+
+function customAmount(val) {
+  selectedAmount = parseInt(val)||0;
+  document.querySelectorAll('.amt-btn').forEach(b=>b.classList.remove('active'));
+  updateDonateLabel();
+}
+
+function updateDonateLabel() {
+  document.getElementById('donate-amt-label').textContent = '₹' + selectedAmount.toLocaleString('en-IN');
+}
+
+/* ── PROCESS DONATION ── */
+function processDonation() {
+  const name  = document.getElementById('d-fname').value.trim();
+  const email = document.getElementById('d-email').value.trim();
+  if(!selectedAmount || selectedAmount < 1) { showToast('⚠️ Please enter a donation amount','warn'); return; }
+  if(!email) { showToast('⚠️ Please enter your email','warn'); return; }
+
+  const btn = document.getElementById('btn-donate');
+  btn.innerHTML = `<span>Processing...</span>`;
+  btn.disabled  = true;
+
+  setTimeout(() => {
+    btn.innerHTML = `❤️ Donate ₹${selectedAmount.toLocaleString('en-IN')} Securely`;
+    btn.disabled  = false;
+    const c = causes.find(x=>x.id===selectedCause);
+    if(c) c.raised += selectedAmount;
+    const dname = name || 'Anonymous';
+    donors.unshift({ name:dname, color:['#E85D04','#3B82F6','#22C55E','#8B5CF6'][Math.floor(Math.random()*4)], amount:`₹${selectedAmount.toLocaleString('en-IN')}`, cause:c?c.name.split(' — ')[1]:'General', time:'just now' });
+    renderDonors();
+    document.getElementById('ty-msg').innerHTML = `Your donation of <strong>₹${selectedAmount.toLocaleString('en-IN')}</strong> to <strong>${c?c.name:'AidConnect General Fund'}</strong> has been received! A receipt will be sent to <strong>${email}</strong>.`;
+    document.getElementById('thanksModal').classList.add('open');
+    showToast(`❤️ Donation of ₹${selectedAmount.toLocaleString('en-IN')} received! Thank you, ${dname}!`);
+  }, 2000);
+}
+
+function closeThanks() { document.getElementById('thanksModal').classList.remove('open'); }
+document.getElementById('thanksModal').addEventListener('click', e => { if(e.target===document.getElementById('thanksModal')) closeThanks(); });
+
+/* ── RENDER DONORS ── */
+function renderDonors() {
+  document.getElementById('donors-grid').innerHTML = donors.slice(0,8).map(d => `
+    <div class="donor-card">
+      <div class="donor-av" style="background:${d.color};">${d.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)}</div>
+      <div>
+        <div class="donor-name">${d.name}</div>
+        <div class="donor-amount">${d.amount}</div>
+        <div class="donor-cause">For: ${d.cause}</div>
+        <div class="donor-time">🕐 ${d.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── MARQUEE ── */
+function renderMarquee() {
+  const items = [
+    '🌊 Flood Relief — Jabalpur, MP · 200 families affected',
+    '🏥 Medical Camp — Indore, MP · Doctors dispatched',
+    '🍱 Food Distribution — Raipur, CG · 150 people served',
+    '💊 Medicine Kits — Bhuj, GJ · 60+ houses damaged',
+    '🙋 48 Volunteers currently on ground',
+    '📦 1,768 food packets in stock across 4 zones',
+  ];
+  const doubled = [...items,...items];
+  document.getElementById('marquee').innerHTML = doubled.map(i=>`<div class="marquee-item"><span>●</span><span>${i}</span></div>`).join('');
+}
+
+/* ── CHARTS ── */
+function initCharts() {
+  new Chart(document.getElementById('lineChart'), {
+    type:'line',
+    data:{ labels:['Oct','Nov','Dec','Jan','Feb','Mar','Apr'], datasets:[{ label:'Donations (₹L)', data:[1.2,2.4,1.8,3.2,2.8,4.1,5.2], borderColor:'#E85D04', backgroundColor:'rgba(232,93,4,.08)', borderWidth:2.5, tension:.4, fill:true, pointBackgroundColor:'#E85D04', pointRadius:4 }] },
+    options:{ responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, ticks:{ callback:v=>`₹${v}L` } }, x:{ grid:{ display:false } } } }
+  });
+  new Chart(document.getElementById('pieChart'), {
+    type:'doughnut',
+    data:{ labels:['Relief Operations','Food & Water','Medical Aid','Logistics','Platform'], datasets:[{ data:[55,20,15,7,3], backgroundColor:['#E85D04','#FFBA08','#EF4444','#2EC4B6','#8B5CF6'], borderWidth:0, hoverOffset:8 }] },
+    options:{ responsive:true, cutout:'62%', plugins:{ legend:{ position:'right', labels:{ usePointStyle:true, font:{size:12} } } } }
+  });
+}
+
+/* ── STATS COUNTERS ── */
+function animateStats() {
+  countUp('hs-raised', '₹', '₹2.1Cr');
+  countFloat('hs-donors', 8420);
+  countFloat('hs-families', 52, 'K+');
+  countFloat('hs-states', 18);
+  countFloat('ic-families', 52000);
+  countFloat('ic-meals', 186000);
+  countFloat('ic-med', 3800);
+  countFloat('ic-vols', 3800);
+}
+
+function countFloat(id, val, suffix='', dur=2000) {
+  const el=document.getElementById(id); if(!el) return;
+  let c=0,s=val/(dur/16);
+  const t=setInterval(()=>{c=Math.min(c+s,val); el.textContent=Math.floor(c).toLocaleString('en-IN')+(suffix); if(c>=val)clearInterval(t);},16);
+}
+function countUp(id, prefix, finalText, dur=2000) {
+  const el=document.getElementById(id); if(!el) return;
+  let c=0,target=2100000,s=target/(dur/16);
+  const t=setInterval(()=>{c=Math.min(c+s,target); el.textContent=prefix+Math.floor(c/100000).toFixed(1)+'Cr'; if(c>=target)clearInterval(t);},16);
+}
+
+function showToast(msg, type='success') {
+  const t=document.getElementById('toast');
+  t.className=`toast ${type==='success'?'':type}`;
+  t.innerHTML=`${type==='warn'?'⚠️':'✅'} <span>${msg}</span>`;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),5000);
+}
+
+/* ── INIT ── */
+window.addEventListener('load',()=>{
+  renderCauses();
+  renderCausePicker();
+  renderDonors();
+  renderMarquee();
+  initCharts();
+  animateStats();
+  selectedAmount = 1000;
+  document.getElementById('custom-amt').value = 1000;
+  document.getElementById('donate-amt-label').textContent = '₹1,000';
+  const activeBtn = document.querySelector('.amt-btn.active');
+  if (activeBtn) activeBtn.classList.add('active');
+  setTimeout(()=>showToast('❤️ Pooja donated ₹2,500 to Flood Relief just now!'),2500);
+});
+</script>
+</body>
+</html>
