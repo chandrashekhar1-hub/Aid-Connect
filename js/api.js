@@ -1,5 +1,5 @@
 /**
- * AidConnect — Frontend API Client
+ * SahayaSetu — Frontend API Client
  * Handles all communication with the backend server
  * Includes: JWT auth, offline fallback, Socket.IO
  */
@@ -11,20 +11,20 @@ const SOCKET_URL = 'http://localhost:5000';
    TOKEN MANAGEMENT
 ══════════════════════════════════ */
 const Auth = {
-  getToken:        ()    => localStorage.getItem('aidconnect_token'),
-  getRefreshToken: ()    => localStorage.getItem('aidconnect_refresh'),
+  getToken:        ()    => localStorage.getItem('SahayaSetu_token'),
+  getRefreshToken: ()    => localStorage.getItem('SahayaSetu_refresh'),
   setTokens: (access, refresh) => {
-    localStorage.setItem('aidconnect_token', access);
-    localStorage.setItem('aidconnect_refresh', refresh);
+    localStorage.setItem('SahayaSetu_token', access);
+    localStorage.setItem('SahayaSetu_refresh', refresh);
   },
   clearTokens: () => {
-    localStorage.removeItem('aidconnect_token');
-    localStorage.removeItem('aidconnect_refresh');
-    localStorage.removeItem('aidconnect_user');
+    localStorage.removeItem('SahayaSetu_token');
+    localStorage.removeItem('SahayaSetu_refresh');
+    localStorage.removeItem('SahayaSetu_user');
   },
-  setUser: (user) => localStorage.setItem('aidconnect_user', JSON.stringify(user)),
-  getUser: ()     => JSON.parse(localStorage.getItem('aidconnect_user') || 'null'),
-  isLoggedIn: ()  => !!localStorage.getItem('aidconnect_token')
+  setUser: (user) => localStorage.setItem('SahayaSetu_user', JSON.stringify(user)),
+  getUser: ()     => JSON.parse(localStorage.getItem('SahayaSetu_user') || 'null'),
+  isLoggedIn: ()  => !!localStorage.getItem('SahayaSetu_token')
 };
 
 /* ══════════════════════════════════
@@ -76,7 +76,7 @@ async function refreshToken() {
     });
     const data = await res.json();
     if (data.success) {
-      localStorage.setItem('aidconnect_token', data.accessToken);
+      localStorage.setItem('SahayaSetu_token', data.accessToken);
       return true;
     }
     return false;
@@ -444,4 +444,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* Export for use across pages */
-window.AidConnect = { Auth, AuthAPI, ReportsAPI, VolunteersAPI, TasksAPI, MatchAPI, SOSAPI, NotificationsAPI, InventoryAPI, StatsAPI, SMS, SocketClient, GeoHelper, showGlobalNotification };
+window.SahayaSetu = { Auth, AuthAPI, ReportsAPI, VolunteersAPI, TasksAPI, MatchAPI, SOSAPI, NotificationsAPI, InventoryAPI, StatsAPI, SMS, SocketClient, GeoHelper, showGlobalNotification };

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — AidConnect NGO Platform</title>
-  <meta name="description" content="Sign in to AidConnect — Smart NGO Resource System for disaster relief coordination across India." />
+  <title>Login — SahayaSetu NGO Platform</title>
+  <meta name="description" content="Sign in to SahayaSetu — Smart NGO Resource System for disaster relief coordination across India." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
 
@@ -218,7 +218,7 @@
 <div class="left-panel">
   <div class="brand">
     <div class="brand-logo">🌿</div>
-    <div class="brand-name">Aid<span>Connect</span></div>
+    <div class="brand-name">Sahaya<span>Setu</span></div>
     <div class="brand-tagline">Smart NGO Resource System — India</div>
   </div>
 
@@ -284,22 +284,22 @@
     <!-- ===== LOGIN FORM ===== -->
     <div id="form-login">
       <h1 class="form-title">Welcome Back 👋</h1>
-      <p class="form-subtitle">Sign in to your AidConnect account</p>
+      <p class="form-subtitle">Sign in to your SahayaSetu account</p>
 
       <!-- Demo Credentials -->
       <div class="demo-box">
         <h4>🚀 Demo Accounts — click to autofill</h4>
         <div class="demo-cred">
-          <div class="demo-item" onclick="fillDemo('admin@aidconnect.org','Admin@123')" role="button" tabindex="0">
-            <div class="demo-item-info"><div class="demo-item-role">System Admin</div><div class="demo-item-email">admin@aidconnect.org</div></div>
+          <div class="demo-item" onclick="fillDemo('admin@SahayaSetu.org','Admin@123')" role="button" tabindex="0">
+            <div class="demo-item-info"><div class="demo-item-role">System Admin</div><div class="demo-item-email">admin@SahayaSetu.org</div></div>
             <span class="demo-item-badge">ADMIN</span>
           </div>
-          <div class="demo-item" onclick="fillDemo('ayesha@aidconnect.org','Coord@123')" role="button" tabindex="0">
-            <div class="demo-item-info"><div class="demo-item-role">Coordinator</div><div class="demo-item-email">ayesha@aidconnect.org</div></div>
+          <div class="demo-item" onclick="fillDemo('ayesha@SahayaSetu.org','Coord@123')" role="button" tabindex="0">
+            <div class="demo-item-info"><div class="demo-item-role">Coordinator</div><div class="demo-item-email">ayesha@SahayaSetu.org</div></div>
             <span class="demo-item-badge" style="background:#2EC4B6;">COORD</span>
           </div>
-          <div class="demo-item" onclick="fillDemo('rahul@aidconnect.org','Vol@12345')" role="button" tabindex="0">
-            <div class="demo-item-info"><div class="demo-item-role">Volunteer</div><div class="demo-item-email">rahul@aidconnect.org</div></div>
+          <div class="demo-item" onclick="fillDemo('rahul@SahayaSetu.org','Vol@12345')" role="button" tabindex="0">
+            <div class="demo-item-info"><div class="demo-item-role">Volunteer</div><div class="demo-item-email">rahul@SahayaSetu.org</div></div>
             <span class="demo-item-badge" style="background:#22C55E;">VOL</span>
           </div>
           <div class="demo-item" onclick="fillDemo('ananya.donor@gmail.com','Donor@123')" role="button" tabindex="0">
@@ -339,7 +339,7 @@
 
     <!-- ===== REGISTER FORM ===== -->
     <div id="form-register" style="display:none;">
-      <h1 class="form-title">Join AidConnect 🌿</h1>
+      <h1 class="form-title">Join SahayaSetu 🌿</h1>
       <p class="form-subtitle">Create your account and start making a difference</p>
 
       <form id="register-form" onsubmit="handleRegister(event)" novalidate>
@@ -444,7 +444,7 @@
     </div>
 
     <p class="back-link">
-      <a href="index.html">← Back to AidConnect Home</a>
+      <a href="index.html">← Back to SahayaSetu Home</a>
     </p>
 
   </div>
@@ -605,9 +605,9 @@
       catch { throw new Error('Server returned an invalid response.'); }
 
       if (res.ok && data.success) {
-        localStorage.setItem('aidconnect_token',   data.accessToken);
-        localStorage.setItem('aidconnect_refresh', data.refreshToken);
-        localStorage.setItem('aidconnect_user',    JSON.stringify(data.user));
+        localStorage.setItem('SahayaSetu_token',   data.accessToken);
+        localStorage.setItem('SahayaSetu_refresh', data.refreshToken);
+        localStorage.setItem('SahayaSetu_user',    JSON.stringify(data.user));
         showSuccess(`Welcome back, ${data.user.name}! Redirecting...`);
         showToast(`✅ Signed in as ${data.user.name}`, 'success');
         setTimeout(() => redirectByRole(data.user.role), 1000);
@@ -630,14 +630,14 @@
 
   /* ── Demo Fallback (only when server is offline) ── */
   const DEMO_ACCOUNTS = {
-    'admin@aidconnect.org':       { name:'Admin User',    role:'admin',       _id:'demo001' },
-    'ayesha@aidconnect.org':      { name:'Ayesha Khan',   role:'coordinator', _id:'demo002' },
-    'coordinator@aidconnect.org': { name:'Priya Sharma',  role:'coordinator', _id:'demo002b' },
-    'rahul@aidconnect.org':       { name:'Rahul Verma',   role:'volunteer',   _id:'demo003' },
-    'volunteer@aidconnect.org':   { name:'Ravi Kumar',    role:'volunteer',   _id:'demo003b' },
+    'admin@SahayaSetu.org':       { name:'Admin User',    role:'admin',       _id:'demo001' },
+    'ayesha@SahayaSetu.org':      { name:'Ayesha Khan',   role:'coordinator', _id:'demo002' },
+    'coordinator@SahayaSetu.org': { name:'Priya Sharma',  role:'coordinator', _id:'demo002b' },
+    'rahul@SahayaSetu.org':       { name:'Rahul Verma',   role:'volunteer',   _id:'demo003' },
+    'volunteer@SahayaSetu.org':   { name:'Ravi Kumar',    role:'volunteer',   _id:'demo003b' },
     'ananya.donor@gmail.com':     { name:'Ananya Patel',  role:'donor',       _id:'demo004' },
-    'donor@aidconnect.org':       { name:'Amit Patel',    role:'donor',       _id:'demo004b' },
-    'citizen@aidconnect.org':     { name:'Meena Rao',     role:'citizen',     _id:'demo005' },
+    'donor@SahayaSetu.org':       { name:'Amit Patel',    role:'donor',       _id:'demo004b' },
+    'citizen@SahayaSetu.org':     { name:'Meena Rao',     role:'citizen',     _id:'demo005' },
   };
 
   function showDemoFallback(email, password) {
@@ -655,9 +655,9 @@
   function demoLogin(email) {
     const user = DEMO_ACCOUNTS[email.toLowerCase()];
     if (!user) { showError('No demo account for this email.'); return; }
-    localStorage.setItem('aidconnect_token',   'demo_token_' + Date.now());
-    localStorage.setItem('aidconnect_refresh', 'demo_refresh_' + Date.now());
-    localStorage.setItem('aidconnect_user',    JSON.stringify({ ...user, email, phone:'9876543210', isDemoUser: true }));
+    localStorage.setItem('SahayaSetu_token',   'demo_token_' + Date.now());
+    localStorage.setItem('SahayaSetu_refresh', 'demo_refresh_' + Date.now());
+    localStorage.setItem('SahayaSetu_user',    JSON.stringify({ ...user, email, phone:'9876543210', isDemoUser: true }));
     showSuccess(`Demo login as ${user.name}. Redirecting...`);
     showToast(`🎭 Demo mode: ${user.name}`, 'warn');
     setTimeout(() => redirectByRole(user.role), 1000);
@@ -702,11 +702,11 @@
       catch { throw new Error('Server returned an invalid response.'); }
 
       if (res.ok && data.success) {
-        localStorage.setItem('aidconnect_token',   data.accessToken);
-        localStorage.setItem('aidconnect_refresh', data.refreshToken);
-        localStorage.setItem('aidconnect_user',    JSON.stringify(data.user));
+        localStorage.setItem('SahayaSetu_token',   data.accessToken);
+        localStorage.setItem('SahayaSetu_refresh', data.refreshToken);
+        localStorage.setItem('SahayaSetu_user',    JSON.stringify(data.user));
         showSuccess(`Account created! Welcome, ${name}! Redirecting...`);
-        showToast(`🎉 Welcome to AidConnect, ${name}!`, 'success');
+        showToast(`🎉 Welcome to SahayaSetu, ${name}!`, 'success');
         setTimeout(() => redirectByRole(data.user.role), 1200);
       } else {
         // Show backend validation errors clearly
@@ -727,12 +727,12 @@
      FORGOT PASSWORD
   ══════════════════════════════════════════════ */
   function forgotPassword() {
-    showInfo('Password reset via email is not yet enabled. Please contact admin@aidconnect.org or use a demo account.');
+    showInfo('Password reset via email is not yet enabled. Please contact admin@SahayaSetu.org or use a demo account.');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('aidconnect_token');
-    const user  = JSON.parse(localStorage.getItem('aidconnect_user') || 'null');
+    const token = localStorage.getItem('SahayaSetu_token');
+    const user  = JSON.parse(localStorage.getItem('SahayaSetu_user') || 'null');
     if (token && user) {
       showSuccess(`Already signed in as ${user.name}. Redirecting...`);
       setTimeout(() => redirectByRole(user.role), 1000);

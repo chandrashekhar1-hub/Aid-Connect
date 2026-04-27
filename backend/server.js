@@ -1,5 +1,5 @@
 /**
- * AidConnect — Smart NGO Resource System
+ * SahayaSetu — Smart NGO Resource System
  * Complete Express + Socket.IO + MongoDB Backend
  * Version: 1.0.0
  */
@@ -114,7 +114,7 @@ const authLimiter = rateLimit({
 /* ══════════════════════════════════
    DATABASE CONNECTION
 ══════════════════════════════════ */
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/aidconnect', {
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/SahayaSetu', {
   serverSelectionTimeoutMS: 5000
 })
 .then(() => logger.info('✅ MongoDB connected'))
@@ -270,7 +270,7 @@ async function sendNotification({ recipientId, type, title, message, data={}, so
 app.get('/api/health', (req, res) => {
   respond(res, {
     status: 'OK',
-    server: 'AidConnect API v1.0.0',
+    server: 'SahayaSetu API v1.0.0',
     timestamp: new Date().toISOString(),
     db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
   });
@@ -305,7 +305,7 @@ app.post('/api/auth/register', authLimiter, validate([
     user.refreshTokens.push({ token: refreshToken });
     await user.save();
 
-    await sendNotification({ recipientId: user._id, type:'system', title:'Welcome to AidConnect! 🌿', message:`Hello ${name}, your account has been created. Complete your profile to start volunteering.` });
+    await sendNotification({ recipientId: user._id, type:'system', title:'Welcome to SahayaSetu! 🌿', message:`Hello ${name}, your account has been created. Complete your profile to start volunteering.` });
 
     logger.info(`User registered: ${email} as ${role}`);
     respond(res, { message: 'Registration successful', user: user.toPublic(), accessToken, refreshToken }, 201);
@@ -993,7 +993,7 @@ app.use((req, res) => res.status(404).json({ success: false, error: `Route ${req
 server.listen(PORT, () => {
   logger.info(`
   ╔═══════════════════════════════════════╗
-  ║   🌿 AidConnect API  v1.0.0          ║
+  ║   🌿 SahayaSetu API  v1.0.0          ║
   ║   Port  : ${PORT}                        ║
   ║   Mode  : ${process.env.NODE_ENV || 'development'}                ║
   ║   Health: http://localhost:${PORT}/api/health ║

@@ -1,9 +1,9 @@
 @echo off
-title AidConnect — Smart NGO Resource System
+title SahayaSetu — Smart NGO Resource System
 color 0A
 echo.
 echo ╔══════════════════════════════════════════════════════╗
-echo ║   🌿  AidConnect — Smart NGO Resource System         ║
+echo ║   🌿  SahayaSetu — Smart NGO Resource System         ║
 echo ║   Disaster Relief Coordination Platform              ║
 echo ║   Authentication: Email/Password + Google OAuth      ║
 echo ╚══════════════════════════════════════════════════════╝
@@ -70,15 +70,15 @@ if /i "%SEED_DB%"=="y" (
 
 :: Start the backend server in a new window
 echo.
-echo 🚀 Starting AidConnect backend server on port 5000...
-start "AidConnect Backend - Keep this open!" cmd /k "cd /d %~dp0backend && node server.js"
+echo 🚀 Starting SahayaSetu backend server on port 5000...
+start "SahayaSetu Backend - Keep this open!" cmd /k "cd /d %~dp0backend && node server.js"
 
 :: Wait for server to start
 timeout /t 4 /nobreak >nul
 
 echo.
 echo ══════════════════════════════════════════════════════
-echo    🌐 AidConnect is RUNNING!
+echo    🌐 SahayaSetu is RUNNING!
 echo.
 echo    🏠 Home:          http://localhost:5000/index.html
 echo    🔐 Login:         http://localhost:5000/login.html
@@ -94,9 +94,9 @@ echo    ❤️  Health Check:  http://localhost:5000/api/health
 echo ══════════════════════════════════════════════════════
 echo.
 echo 📋 Demo Login Credentials (Email + Password):
-echo    Admin:        admin@aidconnect.org      / Admin@123
-echo    Coordinator:  ayesha@aidconnect.org     / Coord@123
-echo    Volunteer:    rahul@aidconnect.org      / Vol@12345
+echo    Admin:        admin@SahayaSetu.org      / Admin@123
+echo    Coordinator:  ayesha@SahayaSetu.org     / Coord@123
+echo    Volunteer:    rahul@SahayaSetu.org      / Vol@12345
 echo    Donor:        ananya.donor@gmail.com    / Donor@123
 echo.
 echo 🔑 Google Sign-In Setup:
@@ -115,7 +115,7 @@ if /i not "%OPEN_BROWSER%"=="n" (
 )
 
 echo.
-echo ✅ AidConnect is live at http://localhost:5000
+echo ✅ SahayaSetu is live at http://localhost:5000
 echo    Keep the backend window open while using the app.
 echo    Press Ctrl+C in the backend window to stop the server.
 echo.

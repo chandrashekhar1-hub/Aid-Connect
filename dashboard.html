@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Dashboard — AidConnect</title>
-  <meta name="description" content="AidConnect Coordinator Dashboard — real-time crisis management."/>
+  <title>Dashboard — SahayaSetu</title>
+  <meta name="description" content="SahayaSetu Coordinator Dashboard — real-time crisis management."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -229,7 +229,7 @@
 <aside class="sidebar">
   <div class="sb-logo">
     <div class="sb-logo-icon">🌿</div>
-    <div class="sb-logo-text">Aid<span>Connect</span></div>
+    <div class="sb-logo-text">Sahaya<span>Setu</span></div>
   </div>
   <nav class="sb-nav">
     <div class="nav-sec">MAIN</div>
@@ -707,7 +707,7 @@ function count(id, val, dur=1800) {
 function setGreeting() {
   const hr = new Date().getHours();
   const greet = hr < 12 ? 'Good Morning' : hr < 17 ? 'Good Afternoon' : 'Good Evening';
-  const user = JSON.parse(localStorage.getItem('aidconnect_user')||'{}');
+  const user = JSON.parse(localStorage.getItem('SahayaSetu_user')||'{}');
   const name = user.name || 'Ayesha';
   const firstName = name.split(' ')[0];
   document.getElementById('hd-greeting').textContent = `${greet}, ${firstName} 👋`;
@@ -744,7 +744,7 @@ async function submitReport() {
   if (!title || !city) { showToast('⚠️ Fill in title and city!','error'); return; }
   try {
     const data = { title, description: desc || title, category: cat || 'other', severity: sev || 'medium', location: { city, state }, peopleAffected: people, filedVia: 'web' };
-    const res = await window.AidConnect.ReportsAPI.create(data);
+    const res = await window.SahayaSetu.ReportsAPI.create(data);
     if(res && res.report) {
       const r = res.report;
       const newR = {
@@ -770,7 +770,7 @@ async function submitReport() {
 async function triggerSOS() {
   if(confirm('🆘 Send SOS Alert?\n\nAll coordinators and nearby volunteers will be notified immediately.')) {
     try {
-      await window.AidConnect.SOSAPI.trigger('Emergency from dashboard');
+      await window.SahayaSetu.SOSAPI.trigger('Emergency from dashboard');
       showToast('🆘 SOS SENT! Help dispatched to all nearby volunteers!','error');
       setTimeout(()=>showToast('📞 Emergency response team notified. ETA: 8 minutes.','warn'),2500);
     } catch (e) {
@@ -801,9 +801,9 @@ window.addEventListener('load', async () => {
   setGreeting();
   try {
     const [repsRes, volsRes, tasksRes] = await Promise.all([
-      window.AidConnect.ReportsAPI.getAll(),
-      window.AidConnect.VolunteersAPI.getAll(),
-      window.AidConnect.TasksAPI.getAll()
+      window.SahayaSetu.ReportsAPI.getAll(),
+      window.SahayaSetu.VolunteersAPI.getAll(),
+      window.SahayaSetu.TasksAPI.getAll()
     ]);
     
     if (repsRes && repsRes.reports) {

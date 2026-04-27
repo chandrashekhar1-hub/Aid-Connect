@@ -1,5 +1,5 @@
 /**
- * AidConnect — Database Seeder
+ * SahayaSetu — Database Seeder
  * Run: node seed.js
  * Populates MongoDB with realistic sample data
  */
@@ -8,31 +8,31 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const { User, Volunteer, Report, Task, Notification, Inventory } = require('./models');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/aidconnect';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/SahayaSetu';
 
 /* ── Sample Data ── */
 const users = [
-  { name:'Admin User',      email:'admin@aidconnect.org',       phone:'+919876500001', password:'Admin@123', role:'admin',       zone:'All' },
-  { name:'Ayesha Sharma',   email:'ayesha@aidconnect.org',      phone:'+919876500002', password:'Coord@123', role:'coordinator', zone:'Zone B' },
-  { name:'Ravi Mehta',      email:'ravi@aidconnect.org',        phone:'+919876500003', password:'Coord@123', role:'coordinator', zone:'Zone C' },
-  { name:'Rahul Verma',     email:'rahul@aidconnect.org',       phone:'+919876500004', password:'Vol@12345', role:'volunteer',   zone:'Zone B' },
-  { name:'Priya Singh',     email:'priya@aidconnect.org',       phone:'+919876500005', password:'Vol@12345', role:'volunteer',   zone:'Zone A' },
-  { name:'Arjun Patel',     email:'arjun@aidconnect.org',       phone:'+919876500006', password:'Vol@12345', role:'volunteer',   zone:'Zone C' },
-  { name:'Meena Rao',       email:'meena@aidconnect.org',       phone:'+919876500007', password:'Vol@12345', role:'volunteer',   zone:'Zone D' },
-  { name:'Dr. Priya Nair',  email:'dr.priya@aidconnect.org',    phone:'+919876500008', password:'Vol@12345', role:'volunteer',   zone:'Zone B' },
-  { name:'Suresh Kumar',    email:'suresh@aidconnect.org',      phone:'+919876500009', password:'Vol@12345', role:'volunteer',   zone:'Zone A' },
+  { name:'Admin User',      email:'admin@SahayaSetu.org',       phone:'+919876500001', password:'Admin@123', role:'admin',       zone:'All' },
+  { name:'Ayesha Sharma',   email:'ayesha@SahayaSetu.org',      phone:'+919876500002', password:'Coord@123', role:'coordinator', zone:'Zone B' },
+  { name:'Ravi Mehta',      email:'ravi@SahayaSetu.org',        phone:'+919876500003', password:'Coord@123', role:'coordinator', zone:'Zone C' },
+  { name:'Rahul Verma',     email:'rahul@SahayaSetu.org',       phone:'+919876500004', password:'Vol@12345', role:'volunteer',   zone:'Zone B' },
+  { name:'Priya Singh',     email:'priya@SahayaSetu.org',       phone:'+919876500005', password:'Vol@12345', role:'volunteer',   zone:'Zone A' },
+  { name:'Arjun Patel',     email:'arjun@SahayaSetu.org',       phone:'+919876500006', password:'Vol@12345', role:'volunteer',   zone:'Zone C' },
+  { name:'Meena Rao',       email:'meena@SahayaSetu.org',       phone:'+919876500007', password:'Vol@12345', role:'volunteer',   zone:'Zone D' },
+  { name:'Dr. Priya Nair',  email:'dr.priya@SahayaSetu.org',    phone:'+919876500008', password:'Vol@12345', role:'volunteer',   zone:'Zone B' },
+  { name:'Suresh Kumar',    email:'suresh@SahayaSetu.org',      phone:'+919876500009', password:'Vol@12345', role:'volunteer',   zone:'Zone A' },
   { name:'Ananya Sharma',   email:'ananya.donor@gmail.com',     phone:'+919876500010', password:'Donor@123', role:'donor',      zone:null },
   { name:'Vikram Sethi',    email:'vikram@ngocorp.in',          phone:'+919876500011', password:'NGO@12345', role:'ngo',        zone:'All' },
   { name:'Citizen User',    email:'citizen@example.com',        phone:'+919876500012', password:'Pass@1234', role:'citizen',    zone:null },
 ];
 
 const volunteerProfiles = [
-  { email:'rahul@aidconnect.org',    skills:['first-aid','driving','logistics'],              availability:'full-time', lat:23.20, lng:79.80, zone:'Zone B', rating:4.9, completed:42 },
-  { email:'priya@aidconnect.org',    skills:['logistics','communication','survey'],           availability:'part-time', lat:22.75, lng:75.95, zone:'Zone A', rating:4.8, completed:36 },
-  { email:'arjun@aidconnect.org',    skills:['rescue','first-aid','swimming'],                availability:'on-call',   lat:21.30, lng:81.70, zone:'Zone C', rating:4.7, completed:28 },
-  { email:'meena@aidconnect.org',    skills:['food-distribution','medical','counseling'],     availability:'full-time', lat:21.20, lng:79.20, zone:'Zone D', rating:4.9, completed:55 },
-  { email:'dr.priya@aidconnect.org', skills:['medical','first-aid','counseling'],             availability:'on-call',   lat:22.72, lng:75.87, zone:'Zone B', rating:4.9, completed:30 },
-  { email:'suresh@aidconnect.org',   skills:['driving','logistics','construction'],           availability:'part-time', lat:22.80, lng:75.90, zone:'Zone A', rating:4.6, completed:24 },
+  { email:'rahul@SahayaSetu.org',    skills:['first-aid','driving','logistics'],              availability:'full-time', lat:23.20, lng:79.80, zone:'Zone B', rating:4.9, completed:42 },
+  { email:'priya@SahayaSetu.org',    skills:['logistics','communication','survey'],           availability:'part-time', lat:22.75, lng:75.95, zone:'Zone A', rating:4.8, completed:36 },
+  { email:'arjun@SahayaSetu.org',    skills:['rescue','first-aid','swimming'],                availability:'on-call',   lat:21.30, lng:81.70, zone:'Zone C', rating:4.7, completed:28 },
+  { email:'meena@SahayaSetu.org',    skills:['food-distribution','medical','counseling'],     availability:'full-time', lat:21.20, lng:79.20, zone:'Zone D', rating:4.9, completed:55 },
+  { email:'dr.priya@SahayaSetu.org', skills:['medical','first-aid','counseling'],             availability:'on-call',   lat:22.72, lng:75.87, zone:'Zone B', rating:4.9, completed:30 },
+  { email:'suresh@SahayaSetu.org',   skills:['driving','logistics','construction'],           availability:'part-time', lat:22.80, lng:75.90, zone:'Zone A', rating:4.6, completed:24 },
 ];
 
 const reports = [
@@ -244,13 +244,13 @@ async function seed() {
     console.log(`✅ Created ${inventoryItems.length} inventory items\n`);
 
     console.log('\n══════════════════════════════════════');
-    console.log('  🌿 AidConnect Database Seeded!');
+    console.log('  🌿 SahayaSetu Database Seeded!');
     console.log('══════════════════════════════════════');
     console.log('\n  Test Login Credentials:');
     console.log('  ┌─────────────────────────────────────────────────────┐');
-    console.log('  │ Admin:       admin@aidconnect.org     Admin@123     │');
-    console.log('  │ Coordinator: ayesha@aidconnect.org    Coord@123     │');
-    console.log('  │ Volunteer:   rahul@aidconnect.org     Vol@12345     │');
+    console.log('  │ Admin:       admin@SahayaSetu.org     Admin@123     │');
+    console.log('  │ Coordinator: ayesha@SahayaSetu.org    Coord@123     │');
+    console.log('  │ Volunteer:   rahul@SahayaSetu.org     Vol@12345     │');
     console.log('  │ Donor:       ananya.donor@gmail.com   Donor@123     │');
     console.log('  └─────────────────────────────────────────────────────┘');
     console.log('\n  Summary:');

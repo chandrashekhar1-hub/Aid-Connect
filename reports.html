@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Crisis Reports — AidConnect</title>
-  <meta name="description" content="All crisis reports across India. Filter, manage and track reports in real-time. AidConnect NGO."/>
+  <title>Crisis Reports — SahayaSetu</title>
+  <meta name="description" content="All crisis reports across India. Filter, manage and track reports in real-time. SahayaSetu NGO."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
   <style>
@@ -222,7 +222,7 @@
 <nav class="navbar">
   <div class="nav-brand">
     <div class="brand-icon">🌿</div>
-    <div class="brand-name">Aid<span>Connect</span></div>
+    <div class="brand-name">Sahaya<span>Setu</span></div>
   </div>
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
@@ -472,7 +472,7 @@ let selectedSev = '';
 ══════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const res = await window.AidConnect.ReportsAPI.getAll();
+    const res = await window.SahayaSetu.ReportsAPI.getAll();
     if (res && res.reports) {
       demoReports = res.reports.map(r => ({
         id: r.reportId || r._id,
@@ -758,7 +758,7 @@ async function fetchAndPopulateVols() {
   const sel = document.getElementById('assign-vol-select');
   if(!sel) return;
   try {
-    const res = await window.AidConnect.VolunteersAPI.getAll();
+    const res = await window.SahayaSetu.VolunteersAPI.getAll();
     if(res.volunteers) {
       sel.innerHTML = res.volunteers.map(v => `<option value="${v._id}">${v.user?.name || 'Unknown'} (${v.skills?.join(', ') || 'General'})</option>`).join('');
     } else {
@@ -771,7 +771,7 @@ async function assignVolunteerToReport(reportDbId, displayId) {
   const volId = document.getElementById('assign-vol-select').value;
   if (!volId) return;
   try {
-    await window.AidConnect.ReportsAPI.update(reportDbId, { assignedVolunteers: [volId] });
+    await window.SahayaSetu.ReportsAPI.update(reportDbId, { assignedVolunteers: [volId] });
     showToast(`✅ Volunteer assigned to ${displayId}!`);
     const r = demoReports.find(x => x._id === reportDbId);
     if (r) r.volunteers = 1;
@@ -831,7 +831,7 @@ async function submitReport(e) {
       },
       peopleAffected: people, filedVia: 'web'
     };
-    const res = await window.AidConnect.ReportsAPI.create(data);
+    const res = await window.SahayaSetu.ReportsAPI.create(data);
     if (res && res.report) {
       const r = res.report;
       const newR = {
@@ -857,7 +857,7 @@ async function resolveReport(id) {
   const r = demoReports.find(x=>x.id===id);
   if(r) {
     try {
-      if(r._id) await window.AidConnect.ReportsAPI.update(r._id, { status: 'resolved' });
+      if(r._id) await window.SahayaSetu.ReportsAPI.update(r._id, { status: 'resolved' });
       r.status='resolved'; 
       filterReports(); 
       renderStats(); 
@@ -876,7 +876,7 @@ function exportCSV() {
   demoReports.forEach(r => rows.push([r.id,`"${r.title}"`,r.category,r.severity,r.status,r.city,r.state,r.peopleAffected,r.filedBy,r.createdAt]));
   const csv = rows.map(r=>r.join(',')).join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = 'aidconnect_reports.csv'; a.click();
+  a.download = 'SahayaSetu_reports.csv'; a.click();
   showToast('📥 Exported as CSV!');
 }
 

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Live Crisis Map — AidConnect</title>
-  <meta name="description" content="Real-time crisis and volunteer tracking map across India. AidConnect NGO."/>
+  <title>Live Crisis Map — SahayaSetu</title>
+  <meta name="description" content="Real-time crisis and volunteer tracking map across India. SahayaSetu NGO."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -125,7 +125,7 @@
   <div class="nav-brand">
     <div class="brand-icon">🌿</div>
     <div>
-      <div class="brand-name">Aid<span>Connect</span> <span class="brand-sub">· Live Map</span></div>
+      <div class="brand-name">Sahaya<span>Setu</span> <span class="brand-sub">· Live Map</span></div>
     </div>
   </div>
   <div class="nav-pills">
@@ -398,7 +398,7 @@ function locateMe() {
 async function triggerSOS() {
   if (confirm('🆘 Send SOS Emergency Alert?\n\nYour location will be broadcast to all coordinators and nearby volunteers immediately.')) {
     try {
-      await window.AidConnect.SOSAPI.trigger('Emergency from map');
+      await window.SahayaSetu.SOSAPI.trigger('Emergency from map');
       showToast('🆘 SOS SENT! Coordinators alerted. Help is on the way.', 'danger');
       setTimeout(() => showToast('📞 Coordinator Ayesha calling you...', 'warn'), 2500);
     } catch(e) {
@@ -435,9 +435,9 @@ function showToast(msg, type='success') {
 window.addEventListener('load', async () => {
   try {
     const [repsRes, volsRes, invRes] = await Promise.all([
-      window.AidConnect.ReportsAPI.getAll(),
-      window.AidConnect.VolunteersAPI.getAll(),
-      window.AidConnect.InventoryAPI.getAll()
+      window.SahayaSetu.ReportsAPI.getAll(),
+      window.SahayaSetu.VolunteersAPI.getAll(),
+      window.SahayaSetu.InventoryAPI.getAll()
     ]);
     
     if (repsRes && repsRes.reports) {
@@ -474,8 +474,8 @@ window.addEventListener('load', async () => {
   renderList();
   updateStats();
   
-  if (window.AidConnect.SocketClient) {
-    window.AidConnect.SocketClient.emit('join:coordinator');
+  if (window.SahayaSetu.SocketClient) {
+    window.SahayaSetu.SocketClient.emit('join:coordinator');
   }
 });
 

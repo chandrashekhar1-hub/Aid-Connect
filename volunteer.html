@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Volunteer Portal — AidConnect</title>
-  <meta name="description" content="Manage volunteers, assign tasks, track SOS and smart-match skills. AidConnect NGO."/>
+  <title>Volunteer Portal — SahayaSetu</title>
+  <meta name="description" content="Manage volunteers, assign tasks, track SOS and smart-match skills. SahayaSetu NGO."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
   <style>
@@ -139,7 +139,7 @@
 <body>
 
 <nav class="navbar">
-  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Aid<span>Connect</span></div></div>
+  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Sahaya<span>Setu</span></div></div>
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="dashboard.html">Dashboard</a>
@@ -537,7 +537,7 @@ async function createTask() {
   
   try {
     const data = { title, description: desc, priority: prio, type: 'distribution', volunteerIds: volId ? [volId] : [] };
-    const res = await window.AidConnect.TasksAPI.create(data);
+    const res = await window.SahayaSetu.TasksAPI.create(data);
     
     tasks.unshift({ icon:'📋', bg:'rgba(232,93,4,.1)', title, vol:document.getElementById('nt-vol').options[document.getElementById('nt-vol').selectedIndex].text, due:'Soon', prio:document.getElementById('nt-prio').value, prog:0, color:'var(--primary)' });
     closeModal('taskModal');
@@ -575,8 +575,8 @@ function showToast(msg, type='success') {
 window.addEventListener('load', async () => {
   try {
     const [volsRes, tasksRes] = await Promise.all([
-      window.AidConnect.VolunteersAPI.getAll(),
-      window.AidConnect.TasksAPI.getAll()
+      window.SahayaSetu.VolunteersAPI.getAll(),
+      window.SahayaSetu.TasksAPI.getAll()
     ]);
     
     if (volsRes && volsRes.volunteers) {
@@ -627,8 +627,8 @@ window.addEventListener('load', async () => {
   renderZones();
   renderStats();
   
-  if (window.AidConnect.SocketClient) {
-    window.AidConnect.SocketClient.emit('join:coordinator');
+  if (window.SahayaSetu.SocketClient) {
+    window.SahayaSetu.SocketClient.emit('join:coordinator');
   }
 });
 </script>

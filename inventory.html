@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Inventory — AidConnect</title>
-  <meta name="description" content="Real-time resource inventory tracking across all relief zones. AidConnect NGO."/>
+  <title>Inventory — SahayaSetu</title>
+  <meta name="description" content="Real-time resource inventory tracking across all relief zones. SahayaSetu NGO."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -140,7 +140,7 @@
 <body>
 
 <nav class="navbar">
-  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Aid<span>Connect</span></div></div>
+  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Sahaya<span>Setu</span></div></div>
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="dashboard.html">Dashboard</a>
@@ -528,7 +528,7 @@ function exportInventory() {
   const rows=[['Item','Zone A','Zone B','Zone C','Zone D','Total']];
   inventory.forEach(i=>rows.push([i.name,i.a,i.b,i.c,i.d,i.a+i.b+i.c+i.d]));
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}));
-  a.download='aidconnect_inventory.csv'; a.click();
+  a.download='SahayaSetu_inventory.csv'; a.click();
   showToast('📥 Inventory exported!');
 }
 
@@ -543,7 +543,7 @@ function showToast(msg, type='success') {
 /* ── INIT ── */
 window.addEventListener('load', async () => {
   try {
-    const res = await window.AidConnect.InventoryAPI.getAll();
+    const res = await window.SahayaSetu.InventoryAPI.getAll();
     if (res && res.inventory) {
       inventory = [];
       const emojis = { 'food': '🍱', 'medical': '💊', 'shelter': '⛺', 'clothing': '👕', 'water': '💧', 'equipment': '🛠️', 'other': '📦' };

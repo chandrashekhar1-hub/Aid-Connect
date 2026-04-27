@@ -1,5 +1,5 @@
 
-# 🌿 AidConnect — Smart NGO Resource System
+# 🌿 SahayaSetu — Smart NGO Resource System
 
 > India's most advanced disaster relief coordination platform — AI-powered volunteer matching, offline-first architecture, real-time crisis mapping, and full-stack resource management.
 
@@ -59,7 +59,7 @@ copy .env.example .env
 ### Step 4 — Configure MongoDB
 Edit `backend/.env`:
 ```env
-MONGO_URI=mongodb+srv://USERNAME:PASSWORD@cluster0.mongodb.net/aidconnect
+MONGO_URI=mongodb+srv://USERNAME:PASSWORD@cluster0.mongodb.net/SahayaSetu
 ```
 > **Free MongoDB Atlas:** https://cloud.mongodb.com → Create free M0 cluster → Get connection string
 
@@ -86,9 +86,9 @@ Server runs at: `http://localhost:5000`
 ### Step 7 — Test Login
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@aidconnect.org | Admin@123 |
-| Coordinator | ayesha@aidconnect.org | Coord@123 |
-| Volunteer | rahul@aidconnect.org | Vol@12345 |
+| Admin | admin@SahayaSetu.org | Admin@123 |
+| Coordinator | ayesha@SahayaSetu.org | Coord@123 |
+| Volunteer | rahul@SahayaSetu.org | Vol@12345 |
 | Donor | ananya.donor@gmail.com | Donor@123 |
 
 ---
@@ -297,4 +297,4 @@ MIT License — Free to use for NGO and humanitarian purposes.
 ---
 
 **Built with ❤️ for disaster relief workers across India**  
-*AidConnect — Because every second counts in a crisis* 🌿
+*SahayaSetu — Because every second counts in a crisis* 🌿

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Donors Portal — AidConnect</title>
-  <meta name="description" content="Support disaster relief in India. Donate to active crises, track impact, and see every rupee at work. AidConnect NGO."/>
+  <title>Donors Portal — SahayaSetu</title>
+  <meta name="description" content="Support disaster relief in India. Donate to active crises, track impact, and see every rupee at work. SahayaSetu NGO."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -156,7 +156,7 @@
 <body>
 
 <nav class="navbar">
-  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Aid<span>Connect</span></div></div>
+  <div class="nav-brand"><div class="brand-icon">🌿</div><div class="brand-name">Sahaya<span>Setu</span></div></div>
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="dashboard.html">Dashboard</a>
@@ -422,7 +422,7 @@ function processDonation() {
     const dname = name || 'Anonymous';
     donors.unshift({ name:dname, color:['#E85D04','#3B82F6','#22C55E','#8B5CF6'][Math.floor(Math.random()*4)], amount:`₹${selectedAmount.toLocaleString('en-IN')}`, cause:c?c.name.split(' — ')[1]:'General', time:'just now' });
     renderDonors();
-    document.getElementById('ty-msg').innerHTML = `Your donation of <strong>₹${selectedAmount.toLocaleString('en-IN')}</strong> to <strong>${c?c.name:'AidConnect General Fund'}</strong> has been received! A receipt will be sent to <strong>${email}</strong>.`;
+    document.getElementById('ty-msg').innerHTML = `Your donation of <strong>₹${selectedAmount.toLocaleString('en-IN')}</strong> to <strong>${c?c.name:'SahayaSetu General Fund'}</strong> has been received! A receipt will be sent to <strong>${email}</strong>.`;
     document.getElementById('thanksModal').classList.add('open');
     showToast(`❤️ Donation of ₹${selectedAmount.toLocaleString('en-IN')} received! Thank you, ${dname}!`);
   }, 2000);
