@@ -1,3 +1,4 @@
+
 # 🌿 AidConnect — Smart NGO Resource System
 
 > India's most advanced disaster relief coordination platform — AI-powered volunteer matching, offline-first architecture, real-time crisis mapping, and full-stack resource management.
